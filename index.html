@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sensmap - Advanced Sensory Navigation</title>
     
-    <!-- CSS 파일들 -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.11.0/dist/geosearch.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Tutorial/Onboarding Modal -->
     <div class="tutorial-overlay" id="tutorialOverlay">
         <div class="tutorial-modal">
             <div class="tutorial-header">
@@ -54,7 +52,6 @@
         </div>
     </div>
 
-    <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner">
             <div class="spinner"></div>
@@ -62,7 +59,6 @@
         </div>
     </div>
 
-    <!-- Error Boundary -->
     <div class="error-boundary" id="errorBoundary" style="display: none;">
         <div class="error-content">
             <i class="fas fa-exclamation-triangle"></i>
@@ -72,40 +68,69 @@
         </div>
     </div>
 
-    <!-- Header Controls -->
     <div class="header-controls">
-        <div class="logo">
-            <i class="fas fa-map-marked-alt"></i>
-            Sensmap
+        <div class="header-left">
+            <div class="logo">
+                <i class="fas fa-map-marked-alt"></i>
+                Sensmap
+            </div>
+            
+            <div class="hamburger-menu">
+                <button class="hamburger-btn" id="hamburgerBtn" aria-label="메뉴 열기" aria-expanded="false">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="hamburger-dropdown" id="hamburgerDropdown" aria-hidden="true">
+                    <div class="menu-item">
+                        <button class="menu-btn" id="profileMenuBtn">
+                            <i class="fas fa-user-cog"></i>
+                            <span>감각 프로필</span>
+                        </button>
+                    </div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-item">
+                        <button class="menu-btn" id="settingsBtn">
+                            <i class="fas fa-cog"></i>
+                            <span>설정</span>
+                        </button>
+                    </div>
+                    <div class="menu-item">
+                        <button class="menu-btn" id="helpBtn">
+                            <i class="fas fa-question-circle"></i>
+                            <span>도움말</span>
+                        </button>
+                    </div>
+                    <div class="menu-item">
+                        <button class="menu-btn" id="contactBtn">
+                            <i class="fas fa-envelope"></i>
+                            <span>문의하기</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div class="header-center">
-            <div class="visualization-controls">
-                <div class="viz-selector">
-                    <button class="viz-btn active" data-viz="markers" aria-label="마커 표시" title="마커 표시">
-                        <i class="fas fa-map-pin"></i>
-                    </button>
-                    <button class="viz-btn" data-viz="heatmap" aria-label="히트맵 표시" title="히트맵 표시">
-                        <i class="fas fa-fire"></i>
-                    </button>
-                </div>
-                
-                <div class="filter-controls">
-                    <button class="filter-btn active" data-filter="all" title="모든 데이터" aria-label="모든 감각 데이터">
-                        <i class="fas fa-globe"></i>
-                    </button>
-                    <button class="filter-btn" data-filter="noise" title="소음" aria-label="소음 데이터만">
-                        <i class="fas fa-volume-high"></i>
-                    </button>
-                    <button class="filter-btn" data-filter="light" title="빛" aria-label="빛 데이터만">
-                        <i class="fas fa-lightbulb"></i>
-                    </button>
-                    <button class="filter-btn" data-filter="odor" title="냄새" aria-label="냄새 데이터만">
-                        <i class="fas fa-nose"></i>
-                    </button>
-                    <button class="filter-btn" data-filter="crowd" title="혼잡도" aria-label="혼잡도 데이터만">
-                        <i class="fas fa-users"></i>
-                    </button>
+            <div class="display-controls">
+                <button id="heatmapBtn" class="display-btn active"><i class="fas fa-fire"></i> 히트맵</button>
+                <div class="sensory-filter">
+                    <button id="sensoryBtn" class="display-btn"><i class="fas fa-map-pin"></i> 감각별</button>
+                    <div id="sensoryDropdown" class="sensory-dropdown">
+                         <div class="sensory-option active" data-sensory="all">
+                            <span class="sensory-icon">🌐</span> 전체
+                        </div>
+                        <div class="sensory-option" data-sensory="noise">
+                            <span class="sensory-icon">🔊</span> 소음
+                        </div>
+                        <div class="sensory-option" data-sensory="light">
+                            <span class="sensory-icon">💡</span> 빛
+                        </div>
+                        <div class="sensory-option" data-sensory="odor">
+                            <span class="sensory-icon">👃</span> 냄새
+                        </div>
+                        <div class="sensory-option" data-sensory="crowd">
+                            <span class="sensory-icon">👥</span> 혼잡도
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -117,14 +142,8 @@
         </div>
         
         <div class="header-right">
-            <button class="icon-btn" id="accessibilityBtn" title="접근성 옵션" aria-label="접근성 설정">
-                <i class="fas fa-universal-access"></i>
-            </button>
             <button class="icon-btn active" id="showDataBtn" title="데이터 표시/숨김" aria-label="데이터 표시 토글" aria-pressed="true">
                 <i class="fas fa-eye"></i>
-            </button>
-            <button class="icon-btn" id="profileBtn" title="감각 프로필" aria-label="감각 프로필 설정">
-                <i class="fas fa-user-cog"></i>
             </button>
             <button class="icon-btn" id="routeBtn" title="경로 찾기" aria-label="경로 찾기 모드">
                 <i class="fas fa-route"></i>
@@ -132,44 +151,64 @@
         </div>
     </div>
 
-    <!-- Accessibility Panel -->
-    <div class="accessibility-panel" id="accessibilityPanel">
+    <div class="settings-panel" id="settingsPanel">
         <div class="panel-header">
-            <div class="panel-title">접근성 설정</div>
-            <button class="close-btn" id="closeAccessibilityBtn">
+            <div class="panel-title">설정</div>
+            <button class="close-btn" id="closeSettingsBtn">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="panel-content">
-            <div class="accessibility-option">
-                <label>
-                    <input type="checkbox" id="colorBlindMode">
-                    <span>색맹 친화 모드</span>
-                </label>
-            </div>
-            <div class="accessibility-option">
-                <label>
-                    <input type="checkbox" id="highContrastMode">
-                    <span>고대비 모드</span>
-                </label>
-            </div>
-            <div class="accessibility-option">
-                <label>
-                    <input type="checkbox" id="reducedMotionMode">
-                    <span>애니메이션 줄이기</span>
-                </label>
-            </div>
-            <div class="accessibility-option">
-                <label for="textSizeSlider">텍스트 크기</label>
-                <input type="range" id="textSizeSlider" min="0.8" max="1.5" step="0.1" value="1">
+            <div class="settings-section">
+                <h3>접근성 옵션</h3>
+                <div class="setting-option">
+                    <label>
+                        <input type="checkbox" id="colorBlindMode">
+                        <span>색맹 친화 모드</span>
+                    </label>
+                </div>
+                <div class="setting-option">
+                    <label>
+                        <input type="checkbox" id="highContrastMode">
+                        <span>고대비 모드</span>
+                    </label>
+                </div>
+                <div class="setting-option">
+                    <label>
+                        <input type="checkbox" id="reducedMotionMode">
+                        <span>애니메이션 줄이기</span>
+                    </label>
+                </div>
+                <div class="setting-option">
+                    <label for="textSizeSlider">텍스트 크기</label>
+                    <input type="range" id="textSizeSlider" min="0.8" max="1.5" step="0.1" value="1">
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Map Container -->
+    <div class="modal-overlay" id="contactModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>문의하기</h3>
+                <button class="close-btn" id="closeContactBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Sensmap에 대한 의견이나 문의사항이 있으시면 언제든지 연락해주세요.</p>
+                <div class="contact-methods">
+                    <a href="mailto:support@sensmap.app" class="contact-btn">
+                        <i class="fas fa-envelope"></i>
+                        이메일로 문의하기
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="map" role="application" aria-label="감각 지도" tabindex="0"></div>
 
-    <!-- Sensory Data Input Panel -->
     <div class="side-panel" id="sidePanel" aria-hidden="true">
         <div class="panel-header">
             <div class="panel-title">감각 정보 입력</div>
@@ -180,64 +219,75 @@
         </div>
         
         <div class="panel-content">
-            <form id="sensoryForm">
+            <form id="sensoryForm" novalidate>
                 <div class="form-group">
                     <label class="form-label">정보 유형</label>
                     <div class="type-selector">
                         <div class="type-option selected" data-type="irregular" tabindex="0" role="button" aria-pressed="true">
                             <div class="type-title">⚡ 일시적</div>
-                            <div class="type-desc">공사, 이벤트 등<br>(30분-6시간)</div>
+                            <div class="type-desc">공사, 이벤트 등</div>
                         </div>
                         <div class="type-option" data-type="regular" tabindex="0" role="button" aria-pressed="false">
                             <div class="type-title">🏢 지속적</div>
-                            <div class="type-desc">건물, 도로 특성<br>(1일-1주일)</div>
+                            <div class="type-desc">건물, 도로 특성</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group smart-form-group" data-field="noise">
-                    <label class="form-label" for="noiseInput">소음 수준 (0=조용함, 10=매우 시끄러움)</label>
-                    <div class="slider-container">
-                        <input type="range" class="range-slider" id="noiseInput" name="noise" min="0" max="10" value="5" aria-describedby="noiseValue">
-                        <div class="range-value" id="noiseValue">5</div>
+                <div class="smart-form-group" data-field="noise">
+                    <div class="field-header">
+                        <label class="form-label" for="noiseInput">소음 수준</label>
+                        <button type="button" class="skip-btn" data-field="noise">건너뛰기</button>
                     </div>
-                    <button type="button" class="skip-btn" data-field="noise">건너뛰기</button>
+                    <div class="slider-container">
+                        <input type="range" class="range-slider" id="noiseInput" name="noise" min="0" max="10" value="5">
+                        <div class="range-value">5</div>
+                    </div>
                 </div>
 
-                <div class="form-group smart-form-group" data-field="light">
-                    <label class="form-label" for="lightInput">빛 강도 (0=어두움, 10=매우 밝음)</label>
-                    <div class="slider-container">
-                        <input type="range" class="range-slider" id="lightInput" name="light" min="0" max="10" value="5" aria-describedby="lightValue">
-                        <div class="range-value" id="lightValue">5</div>
+                <div class="smart-form-group" data-field="light">
+                    <div class="field-header">
+                        <label class="form-label" for="lightInput">빛 강도</label>
+                        <button type="button" class="skip-btn" data-field="light">건너뛰기</button>
                     </div>
-                    <button type="button" class="skip-btn" data-field="light">건너뛰기</button>
+                    <div class="slider-container">
+                        <input type="range" class="range-slider" id="lightInput" name="light" min="0" max="10" value="5">
+                        <div class="range-value">5</div>
+                    </div>
+                </div>
+                
+                <div class="smart-form-group" data-field="odor">
+                    <div class="field-header">
+                        <label class="form-label" for="odorInput">냄새 정도</label>
+                        <button type="button" class="skip-btn" data-field="odor">건너뛰기</button>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" class="range-slider" id="odorInput" name="odor" min="0" max="10" value="5">
+                        <div class="range-value">5</div>
+                    </div>
                 </div>
 
-                <div class="form-group smart-form-group" data-field="odor">
-                    <label class="form-label" for="odorInput">냄새 정도 (0=없음, 10=매우 강함)</label>
-                    <div class="slider-container">
-                        <input type="range" class="range-slider" id="odorInput" name="odor" min="0" max="10" value="5" aria-describedby="odorValue">
-                        <div class="range-value" id="odorValue">5</div>
+                <div class="smart-form-group" data-field="crowd">
+                    <div class="field-header">
+                        <label class="form-label" for="crowdInput">혼잡도</label>
+                        <button type="button" class="skip-btn" data-field="crowd">건너뛰기</button>
                     </div>
-                    <button type="button" class="skip-btn" data-field="odor">건너뛰기</button>
-                </div>
-
-                <div class="form-group smart-form-group" data-field="crowd">
-                    <label class="form-label" for="crowdInput">혼잡도 (0=한산함, 10=매우 혼잡)</label>
                     <div class="slider-container">
-                        <input type="range" class="range-slider" id="crowdInput" name="crowd" min="0" max="10" value="5" aria-describedby="crowdValue">
-                        <div class="range-value" id="crowdValue">5</div>
+                        <input type="range" class="range-slider" id="crowdInput" name="crowd" min="0" max="10" value="5">
+                        <div class="range-value">5</div>
                     </div>
-                    <button type="button" class="skip-btn" data-field="crowd">건너뛰기</button>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="durationInput">예상 지속 시간 (분)</label>
-                    <input type="number" class="duration-input" id="durationInput" name="duration" min="1" max="10080" placeholder="예: 30분, 120분 등">
+                    <label class="form-label" for="durationInput">
+                        예상 지속 시간(분)
+                        <span class="optional-badge">선택</span>
+                    </label>
+                    <input type="number" class="duration-input" id="durationInput" name="duration" min="1">
                 </div>
 
                 <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                    <label class="checkbox-label">
                         <input type="checkbox" name="wheelchair" id="wheelchairInput">
                         <span>♿ 휠체어 접근 제약</span>
                     </label>
@@ -255,7 +305,6 @@
         </div>
     </div>
 
-    <!-- Profile Panel -->
     <div class="side-panel" id="profilePanel" aria-hidden="true">
         <div class="panel-header">
             <div class="panel-title">감각 프로필</div>
@@ -311,28 +360,31 @@
         </div>
     </div>
 
-    <!-- Route Controls -->
     <div class="route-controls" id="routeControls" aria-hidden="true">
         <div class="route-info">
-            <i class="fas fa-route"></i>
-            <span>경로 계획 모드</span>
             <div class="route-badge" id="routeStatus">출발지 선택</div>
         </div>
         
         <div class="route-options" id="routeOptions" style="display: none;">
-            <div class="route-option-header">경로 유형 선택:</div>
             <button class="route-option-btn" id="sensoryRouteBtn">
-                <i class="fas fa-heart"></i>
+                <i class="fas fa-leaf" style="color:#10b981;"></i>
                 <div>
                     <div class="route-option-title">감각 우선</div>
-                    <div class="route-option-desc">쾌적한 경로</div>
+                    <div class="route-option-desc">가장 쾌적한 경로</div>
+                </div>
+            </button>
+            <button class="route-option-btn balanced" id="balancedRouteBtn">
+                <i class="fas fa-balance-scale" style="color:#f59e0b;"></i>
+                <div>
+                    <div class="route-option-title">균형</div>
+                    <div class="route-option-desc">쾌적함과 시간의 균형</div>
                 </div>
             </button>
             <button class="route-option-btn" id="timeRouteBtn">
-                <i class="fas fa-clock"></i>
+                <i class="fas fa-clock" style="color:#3b82f6;"></i>
                 <div>
                     <div class="route-option-title">시간 우선</div>
-                    <div class="route-option-desc">빠른 경로</div>
+                    <div class="route-option-desc">가장 빠른 경로</div>
                 </div>
             </button>
         </div>
@@ -343,27 +395,6 @@
         </button>
     </div>
 
-    <!-- Route Rating Panel -->
-    <div class="route-rating" id="routeRating" style="display: none;">
-        <div class="rating-header">
-            <span>이 경로는 어떠셨나요?</span>
-            <button class="close-rating" id="closeRating">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="rating-buttons">
-            <button class="rating-btn positive" data-rating="positive">
-                <i class="fas fa-thumbs-up"></i>
-                좋음
-            </button>
-            <button class="rating-btn negative" data-rating="negative">
-                <i class="fas fa-thumbs-down"></i>
-                별로
-            </button>
-        </div>
-    </div>
-
-    <!-- Undo Action -->
     <div class="undo-action" id="undoAction" style="display: none;">
         <span class="undo-text">감각 정보가 추가되었습니다</span>
         <button class="undo-btn" id="undoBtn">
@@ -372,10 +403,8 @@
         </button>
     </div>
 
-    <!-- Toast Notification -->
     <div class="toast" id="toast" role="alert" aria-live="polite"></div>
 
-    <!-- Alert Banner -->
     <div class="alert-banner" id="alertBanner" style="display: none;">
         <div class="alert-content">
             <i class="fas fa-exclamation-triangle"></i>
@@ -386,18 +415,9 @@
         </button>
     </div>
 
-    <!-- 스크립트 로딩 (의존성 순서대로) -->
-    <!-- 1. 기본 Leaflet 라이브러리 -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- 2. Leaflet 플러그인들 -->
     <script src="https://unpkg.com/leaflet-geosearch@3.11.0/dist/geosearch.umd.js"></script>
     <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
-    
-    <!-- 3. Polyline 디코딩 라이브러리 -->
-    <script src="https://unpkg.com/@mapbox/polyline@1.1.1/lib/polyline.js"></script>
-    
-    <!-- 4. 메인 애플리케이션 스크립트 -->
     <script src="script.js"></script>
 </body>
 </html>

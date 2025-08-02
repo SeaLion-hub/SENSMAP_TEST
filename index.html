@@ -1,403 +1,962 @@
-<!DOCTYPE html>
+
+
+ <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sensmap - Advanced Sensory Navigation</title>
-    
-    <!-- CSS 파일들 -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.11.0/dist/geosearch.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensmap - 감각의 도화지</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #FEFEFE;
+            color: #2A2A2A;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Canvas Background - 도화지 질감 */
+        .canvas-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 248, 240, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(248, 250, 255, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(250, 255, 248, 0.3) 0%, transparent 50%);
+            background-size: 100% 100%;
+            z-index: 0;
+        }
+
+        /* 미세한 종이 질감 */
+        .canvas-background::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 1px 1px, rgba(0,0,0,0.01) 1px, transparent 0);
+            background-size: 20px 20px;
+            opacity: 0.3;
+        }
+
+        /* Minimal Header - 화가의 서명처럼 */
+        .artist-header {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            right: 24px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            z-index: 1000;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .signature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .signature-mark {
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .signature-text {
+            font-family: 'Crimson Text', serif;
+            font-size: 22px;
+            font-weight: 400;
+            color: #2A2A2A;
+            letter-spacing: -0.3px;
+        }
+
+        .canvas-search {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 40px;
+            position: relative;
+        }
+
+        .search-canvas {
+            width: 100%;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 18px;
+            padding: 0 40px 0 20px;
+            font-size: 14px;
+            color: #2A2A2A;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .search-canvas:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(0, 0, 0, 0.15);
+            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.08);
+        }
+
+        .search-canvas::placeholder {
+            color: rgba(42, 42, 42, 0.5);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(42, 42, 42, 0.4);
+            font-size: 12px;
+        }
+
+        .canvas-tools {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tool-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 50%;
+            color: rgba(42, 42, 42, 0.7);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .tool-btn:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(0, 0, 0, 0.15);
+            color: #FF6B6B;
+            transform: translateY(-1px);
+        }
+
+        .tool-btn.active {
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);
+        }
+
+        /* Palette Panel - 화가의 팔레트 */
+        .palette-panel {
+            position: fixed;
+            top: 110px;
+            left: 24px;
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .palette-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .palette-title {
+            font-family: 'Crimson Text', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #2A2A2A;
+            margin-bottom: 4px;
+        }
+
+        .palette-subtitle {
+            font-size: 12px;
+            color: rgba(42, 42, 42, 0.6);
+            font-style: italic;
+        }
+
+        .color-palette {
+            padding: 20px 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* 감각 색상 - 물감 방울처럼 */
+        .color-drop {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 20px;
+            padding: 20px 16px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .color-drop::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            transition: all 0.4s ease;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+
+        .color-drop:hover::before {
+            width: 100%;
+            height: 100%;
+        }
+
+        .color-drop.noise::before { background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 107, 107, 0.05)); }
+        .color-drop.light::before { background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05)); }
+        .color-drop.odor::before { background: linear-gradient(135deg, rgba(156, 39, 176, 0.1), rgba(156, 39, 176, 0.05)); }
+        .color-drop.crowd::before { background: linear-gradient(135deg, rgba(78, 205, 196, 0.1), rgba(78, 205, 196, 0.05)); }
+
+        .color-drop:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-drop.active {
+            background: rgba(255, 255, 255, 1);
+            border-color: rgba(0, 0, 0, 0.12);
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .color-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+            position: relative;
+            z-index: 2;
+        }
+
+        .color-drop.noise .color-icon { color: #FF6B6B; }
+        .color-drop.light .color-icon { color: #FFC107; }
+        .color-drop.odor .color-icon { color: #9C27B0; }
+        .color-drop.crowd .color-icon { color: #4ECDC4; }
+
+        .color-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #2A2A2A;
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .color-value {
+            font-size: 20px;
+            font-weight: 300;
+            color: #2A2A2A;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Brush Panel - 붓 선택 (경로 옵션) */
+        .brush-panel {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 24px;
+            padding: 16px 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            z-index: 999;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .brush-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .brush-option:hover {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(0, 0, 0, 0.08);
+        }
+
+        .brush-option.active {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(78, 205, 196, 0.1));
+            border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        .brush-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+
+        .brush-sensory { background: linear-gradient(135deg, #4CAF50, #2E7D32); }
+        .brush-balanced { background: linear-gradient(135deg, #FF9800, #F57C00); }
+        .brush-time { background: linear-gradient(135deg, #2196F3, #1976D2); }
+
+        .brush-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: #2A2A2A;
+        }
+
+        /* Canvas Area - 도화지 */
+        .canvas-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(255, 248, 240, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(248, 250, 255, 0.1) 0%, transparent 50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .canvas-watermark {
+            font-family: 'Crimson Text', serif;
+            font-size: 16px;
+            color: rgba(42, 42, 42, 0.15);
+            font-style: italic;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* Inspiration Panel - 영감 노트 */
+        .inspiration-panel {
+            position: fixed;
+            top: 110px;
+            right: 24px;
+            width: 260px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .inspiration-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .inspiration-title {
+            font-family: 'Crimson Text', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #2A2A2A;
+            margin-bottom: 4px;
+        }
+
+        .inspiration-subtitle {
+            font-size: 12px;
+            color: rgba(42, 42, 42, 0.6);
+            font-style: italic;
+        }
+
+        .inspiration-content {
+            padding: 20px 24px;
+        }
+
+        .inspiration-quote {
+            font-family: 'Crimson Text', serif;
+            font-size: 14px;
+            color: rgba(42, 42, 42, 0.8);
+            font-style: italic;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            padding-left: 16px;
+            border-left: 2px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .stats-sketch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-note {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 18px;
+            font-weight: 300;
+            color: #2A2A2A;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: rgba(42, 42, 42, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Add Button - 새 붓터치 */
+        .add-touch {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
+        }
+
+        .add-touch:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Prism Filter - 프리즘 효과 */
+        .prism-filter {
+            position: fixed;
+            top: 180px;
+            left: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            z-index: 998;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .prism-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #FFC107, #9C27B0);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prism-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            animation: prismShine 3s ease-in-out infinite;
+        }
+
+        @keyframes prismShine {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        .prism-text {
+            font-size: 12px;
+            color: rgba(42, 42, 42, 0.7);
+            font-weight: 500;
+        }
+
+        .intensity-slider {
+            width: 60px;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .intensity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .artist-header {
+                top: 16px;
+                left: 16px;
+                right: 16px;
+                padding: 0 20px;
+            }
+
+            .canvas-search {
+                margin: 0 20px;
+                max-width: 200px;
+            }
+
+            .palette-panel,
+            .inspiration-panel {
+                position: fixed;
+                bottom: 100px;
+                left: 16px;
+                right: 16px;
+                width: auto;
+                border-radius: 20px 20px 0 0;
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+            }
+
+            .palette-panel.open,
+            .inspiration-panel.open {
+                transform: translateY(0);
+            }
+
+            .prism-filter {
+                top: 90px;
+                left: 16px;
+                right: 16px;
+                width: auto;
+            }
+
+            .brush-panel {
+                bottom: 16px;
+                left: 16px;
+                right: 16px;
+                transform: none;
+                border-radius: 16px;
+            }
+
+            .add-touch {
+                bottom: 90px;
+                right: 16px;
+                width: 48px;
+                height: 48px;
+                font-size: 18px;
+            }
+        }
+
+        /* Fade Animations */
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
 </head>
 <body>
-    <!-- Tutorial/Onboarding Modal -->
-    <div class="tutorial-overlay" id="tutorialOverlay">
-        <div class="tutorial-modal">
-            <div class="tutorial-header">
-                <h2><i class="fas fa-graduation-cap"></i> Sensmap 사용법</h2>
-            </div>
-            <div class="tutorial-content">
-                <div class="tutorial-step active" data-step="1">
-                    <div class="tutorial-icon">🗺️</div>
-                    <h3>지도에서 감각 정보 확인</h3>
-                    <p>색상으로 표시된 마커를 통해 각 지역의 소음, 빛, 냄새, 혼잡도 정보를 확인할 수 있습니다.</p>
-                </div>
-                <div class="tutorial-step" data-step="2">
-                    <div class="tutorial-icon">➕</div>
-                    <h3>감각 정보 추가하기</h3>
-                    <p>지도를 클릭하고 팝업에서 "감각 정보 추가"를 선택하여 현재 위치의 감각 데이터를 입력하세요.</p>
-                </div>
-                <div class="tutorial-step" data-step="3">
-                    <div class="tutorial-icon">🛣️</div>
-                    <h3>감각 친화적 경로 찾기</h3>
-                    <p>경로 버튼을 클릭하고 출발지와 도착지를 선택하면 쾌적한 경로를 추천해드립니다.</p>
-                </div>
-                <div class="tutorial-step" data-step="4">
-                    <div class="tutorial-icon">⚙️</div>
-                    <h3>개인 프로필 설정</h3>
-                    <p>프로필 버튼에서 개인의 감각 민감도를 설정하여 맞춤형 추천을 받으세요.</p>
-                </div>
-            </div>
-            <div class="tutorial-navigation">
-                <button class="tutorial-btn secondary" id="tutorialPrev">이전</button>
-                <div class="tutorial-dots">
-                    <span class="dot active" data-step="1"></span>
-                    <span class="dot" data-step="2"></span>
-                    <span class="dot" data-step="3"></span>
-                    <span class="dot" data-step="4"></span>
-                </div>
-                <button class="tutorial-btn primary" id="tutorialNext">다음</button>
-            </div>
-            <button class="tutorial-skip" id="tutorialSkip">건너뛰기</button>
-        </div>
-    </div>
+    <!-- Canvas Background -->
+    <div class="canvas-background"></div>
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner">
-            <div class="spinner"></div>
-            <div class="loading-text">지도를 불러오는 중...</div>
-        </div>
-    </div>
-
-    <!-- Error Boundary -->
-    <div class="error-boundary" id="errorBoundary" style="display: none;">
-        <div class="error-content">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h3>오류가 발생했습니다</h3>
-            <p>앱을 불러오는 중 문제가 발생했습니다. 페이지를 새로고침해주세요.</p>
-            <button onclick="location.reload()" class="primary-btn">새로고침</button>
-        </div>
-    </div>
-
-    <!-- Header Controls -->
-    <div class="header-controls">
-        <div class="logo">
-            <i class="fas fa-map-marked-alt"></i>
-            Sensmap
+    <!-- Artist Header -->
+    <header class="artist-header fade-in">
+        <div class="signature">
+            <div class="signature-mark"></div>
+            <div class="signature-text">Sensmap</div>
         </div>
         
-        <div class="header-center">
-            <div class="visualization-controls">
-                <div class="viz-selector">
-                    <button class="viz-btn active" data-viz="markers" aria-label="마커 표시" title="마커 표시">
-                        <i class="fas fa-map-pin"></i>
-                    </button>
-                    <button class="viz-btn" data-viz="heatmap" aria-label="히트맵 표시" title="히트맵 표시">
-                        <i class="fas fa-fire"></i>
-                    </button>
-                </div>
-                
-                <div class="filter-controls">
-                    <button class="filter-btn active" data-filter="all" title="모든 데이터" aria-label="모든 감각 데이터">
-                        <i class="fas fa-globe"></i>
-                    </button>
-                    <button class="filter-btn" data-filter="noise" title="소음" aria-label="소음 데이터만">
-                        <i class="fas fa-volume-high"></i>
-                    </button>
-                    <button class="filter-btn" data-filter="light" title="빛" aria-label="빛 데이터만">
-                        <i class="fas fa-lightbulb"></i>
-                    </button>
-                    <button class="filter-btn" data-filter="odor" title="냄새" aria-label="냄새 데이터만">
-                        <i class="fas fa-nose"></i>
-                    </button>
-                    <button class="filter-btn" data-filter="crowd" title="혼잡도" aria-label="혼잡도 데이터만">
-                        <i class="fas fa-users"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="intensity-control">
-                <label for="intensitySlider" style="font-size: 12px; color: #6b7280;">표시 강도</label>
-                <input type="range" class="intensity-slider" id="intensitySlider" min="0.3" max="1" step="0.1" value="0.7" aria-label="표시 강도 조절">
-                <span id="intensityValue" style="font-size: 12px; font-weight: 600;">0.7</span>
-            </div>
+        <div class="canvas-search">
+            <input type="text" class="search-canvas" placeholder="당신만의 감각 여행을 시작하세요...">
+            <i class="fas fa-search search-icon"></i>
         </div>
         
-        <div class="header-right">
-            <button class="icon-btn" id="accessibilityBtn" title="접근성 옵션" aria-label="접근성 설정">
-                <i class="fas fa-universal-access"></i>
-            </button>
-            <button class="icon-btn active" id="showDataBtn" title="데이터 표시/숨김" aria-label="데이터 표시 토글" aria-pressed="true">
+        <div class="canvas-tools">
+            <button class="tool-btn active" title="감각 보기">
                 <i class="fas fa-eye"></i>
             </button>
-            <button class="icon-btn" id="profileBtn" title="감각 프로필" aria-label="감각 프로필 설정">
-                <i class="fas fa-user-cog"></i>
+            <button class="tool-btn" title="레이어">
+                <i class="fas fa-layer-group"></i>
             </button>
-            <button class="icon-btn" id="routeBtn" title="경로 찾기" aria-label="경로 찾기 모드">
-                <i class="fas fa-route"></i>
+            <button class="tool-btn" title="프리즘">
+                <i class="fas fa-adjust"></i>
             </button>
-        </div>
-    </div>
-
-    <!-- Accessibility Panel -->
-    <div class="accessibility-panel" id="accessibilityPanel">
-        <div class="panel-header">
-            <div class="panel-title">접근성 설정</div>
-            <button class="close-btn" id="closeAccessibilityBtn">
-                <i class="fas fa-times"></i>
+            <button class="tool-btn" title="설정">
+                <i class="fas fa-palette"></i>
             </button>
         </div>
-        <div class="panel-content">
-            <div class="accessibility-option">
-                <label>
-                    <input type="checkbox" id="colorBlindMode">
-                    <span>색맹 친화 모드</span>
-                </label>
-            </div>
-            <div class="accessibility-option">
-                <label>
-                    <input type="checkbox" id="highContrastMode">
-                    <span>고대비 모드</span>
-                </label>
-            </div>
-            <div class="accessibility-option">
-                <label>
-                    <input type="checkbox" id="reducedMotionMode">
-                    <span>애니메이션 줄이기</span>
-                </label>
-            </div>
-            <div class="accessibility-option">
-                <label for="textSizeSlider">텍스트 크기</label>
-                <input type="range" id="textSizeSlider" min="0.8" max="1.5" step="0.1" value="1">
-            </div>
-        </div>
-    </div>
+    </header>
 
-    <!-- Map Container -->
-    <div id="map" role="application" aria-label="감각 지도" tabindex="0"></div>
-
-    <!-- Sensory Data Input Panel -->
-    <div class="side-panel" id="sidePanel" aria-hidden="true">
-        <div class="panel-header">
-            <div class="panel-title">감각 정보 입력</div>
-            <div class="panel-subtitle">현재 위치의 감각 정보를 기록해주세요</div>
-            <button class="close-btn" id="closePanelBtn" aria-label="패널 닫기">
-                <i class="fas fa-times"></i>
-            </button>
+    <!-- Palette Panel -->
+    <aside class="palette-panel slide-in" style="animation-delay: 0.2s">
+        <div class="palette-header">
+            <h2 class="palette-title">감각의 팔레트</h2>
+            <p class="palette-subtitle">각자의 프리즘으로 세상을 물들여보세요</p>
         </div>
         
-        <div class="panel-content">
-            <form id="sensoryForm">
-                <div class="form-group">
-                    <label class="form-label">정보 유형</label>
-                    <div class="type-selector">
-                        <div class="type-option selected" data-type="irregular" tabindex="0" role="button" aria-pressed="true">
-                            <div class="type-title">⚡ 일시적</div>
-                            <div class="type-desc">공사, 이벤트 등<br>(30분-6시간)</div>
-                        </div>
-                        <div class="type-option" data-type="regular" tabindex="0" role="button" aria-pressed="false">
-                            <div class="type-title">🏢 지속적</div>
-                            <div class="type-desc">건물, 도로 특성<br>(1일-1주일)</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group smart-form-group" data-field="noise">
-                    <label class="form-label" for="noiseInput">소음 수준 (0=조용함, 10=매우 시끄러움)</label>
-                    <div class="slider-container">
-                        <input type="range" class="range-slider" id="noiseInput" name="noise" min="0" max="10" value="5" aria-describedby="noiseValue">
-                        <div class="range-value" id="noiseValue">5</div>
-                    </div>
-                    <button type="button" class="skip-btn" data-field="noise">건너뛰기</button>
-                </div>
-
-                <div class="form-group smart-form-group" data-field="light">
-                    <label class="form-label" for="lightInput">빛 강도 (0=어두움, 10=매우 밝음)</label>
-                    <div class="slider-container">
-                        <input type="range" class="range-slider" id="lightInput" name="light" min="0" max="10" value="5" aria-describedby="lightValue">
-                        <div class="range-value" id="lightValue">5</div>
-                    </div>
-                    <button type="button" class="skip-btn" data-field="light">건너뛰기</button>
-                </div>
-
-                <div class="form-group smart-form-group" data-field="odor">
-                    <label class="form-label" for="odorInput">냄새 정도 (0=없음, 10=매우 강함)</label>
-                    <div class="slider-container">
-                        <input type="range" class="range-slider" id="odorInput" name="odor" min="0" max="10" value="5" aria-describedby="odorValue">
-                        <div class="range-value" id="odorValue">5</div>
-                    </div>
-                    <button type="button" class="skip-btn" data-field="odor">건너뛰기</button>
-                </div>
-
-                <div class="form-group smart-form-group" data-field="crowd">
-                    <label class="form-label" for="crowdInput">혼잡도 (0=한산함, 10=매우 혼잡)</label>
-                    <div class="slider-container">
-                        <input type="range" class="range-slider" id="crowdInput" name="crowd" min="0" max="10" value="5" aria-describedby="crowdValue">
-                        <div class="range-value" id="crowdValue">5</div>
-                    </div>
-                    <button type="button" class="skip-btn" data-field="crowd">건너뛰기</button>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="durationInput">예상 지속 시간 (분)</label>
-                    <input type="number" class="duration-input" id="durationInput" name="duration" min="1" max="10080" placeholder="예: 30분, 120분 등">
-                </div>
-
-                <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
-                        <input type="checkbox" name="wheelchair" id="wheelchairInput">
-                        <span>♿ 휠체어 접근 제약</span>
-                    </label>
-                </div>
-
-                <button type="submit" class="primary-btn">
-                    <i class="fas fa-save"></i>
-                    감각 정보 저장
-                </button>
-                
-                <button type="button" class="secondary-btn" id="cancelBtn">
-                    취소
-                </button>
-            </form>
+        <div class="color-palette">
+            <div class="color-drop noise active">
+                <span class="color-icon">🎵</span>
+                <div class="color-label">소리</div>
+                <div class="color-value">7.2</div>
+            </div>
+            
+            <div class="color-drop light">
+                <span class="color-icon">☀️</span>
+                <div class="color-label">빛</div>
+                <div class="color-value">5.8</div>
+            </div>
+            
+            <div class="color-drop odor">
+                <span class="color-icon">🌸</span>
+                <div class="color-label">향기</div>
+                <div class="color-value">3.4</div>
+            </div>
+            
+            <div class="color-drop crowd">
+                <span class="color-icon">🌊</span>
+                <div class="color-label">흐름</div>
+                <div class="color-value">8.1</div>
+            </div>
         </div>
+    </aside>
+
+    <!-- Prism Filter -->
+    <div class="prism-filter slide-in" style="animation-delay: 0.4s">
+        <div class="prism-icon"></div>
+        <span class="prism-text">프리즘 강도</span>
+        <input type="range" class="intensity-slider" min="0.1" max="1" step="0.1" value="0.7">
     </div>
 
-    <!-- Profile Panel -->
-    <div class="side-panel" id="profilePanel" aria-hidden="true">
-        <div class="panel-header">
-            <div class="panel-title">감각 프로필</div>
-            <div class="panel-subtitle">개인 민감도를 설정하여 맞춤형 경로를 찾아보세요</div>
-            <button class="close-btn" id="closeProfileBtn" aria-label="패널 닫기">
-                <i class="fas fa-times"></i>
-            </button>
+    <!-- Canvas Area -->
+    <main class="canvas-area">
+        <div class="canvas-watermark">
+            "모든 사람은 서로 다른 프리즘을 통해<br>
+            세상의 감각을 경험합니다.<br>
+            당신의 감각으로 이 도화지를 물들여주세요."
+        </div>
+    </main>
+
+    <!-- Inspiration Panel -->
+    <aside class="inspiration-panel slide-in" style="animation-delay: 0.3s">
+        <div class="inspiration-header">
+            <h2 class="inspiration-title">영감의 기록</h2>
+            <p class="inspiration-subtitle">함께 그려가는 감각의 지도</p>
         </div>
         
-        <div class="panel-content">
-            <form id="profileForm">
-                <div class="form-group">
-                    <label class="form-label" for="noiseThreshold">소음 민감도</label>
-                    <div class="slider-container">
-                        <input type="range" class="range-slider" id="noiseThreshold" name="noiseThreshold" min="0" max="10" value="5">
-                        <div class="range-value">5</div>
-                    </div>
+        <div class="inspiration-content">
+            <div class="inspiration-quote">
+                "예술은 우리가 진실을 깨닫게 해주는 거짓말이다."<br>
+                — Pablo Picasso
+            </div>
+            
+            <div class="stats-sketch">
+                <div class="stat-note">
+                    <div class="stat-number">142</div>
+                    <div class="stat-label">활성 붓</div>
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="lightThreshold">빛 민감도</label>
-                    <div class="slider-container">
-                        <input type="range" class="range-slider" id="lightThreshold" name="lightThreshold" min="0" max="10" value="5">
-                        <div class="range-value">5</div>
-                    </div>
+                <div class="stat-note">
+                    <div class="stat-number">89</div>
+                    <div class="stat-label">오늘의 터치</div>
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="odorThreshold">냄새 민감도</label>
-                    <div class="slider-container">
-                        <input type="range" class="range-slider" id="odorThreshold" name="odorThreshold" min="0" max="10" value="5">
-                        <div class="range-value">5</div>
-                    </div>
+                <div class="stat-note">
+                    <div class="stat-number">6.8</div>
+                    <div class="stat-label">조화 지수</div>
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="crowdThreshold">혼잡 민감도</label>
-                    <div class="slider-container">
-                        <input type="range" class="range-slider" id="crowdThreshold" name="crowdThreshold" min="0" max="10" value="5">
-                        <div class="range-value">5</div>
-                    </div>
+                <div class="stat-note">
+                    <div class="stat-number">1.2K</div>
+                    <div class="stat-label">예술가들</div>
                 </div>
-
-                <button type="submit" class="primary-btn">
-                    <i class="fas fa-user-check"></i>
-                    프로필 저장
-                </button>
-                
-                <button type="button" class="secondary-btn" id="cancelProfileBtn">
-                    취소
-                </button>
-            </form>
+            </div>
         </div>
-    </div>
+    </aside>
 
-    <!-- Route Controls -->
-    <div class="route-controls" id="routeControls" aria-hidden="true">
-        <div class="route-info">
-            <i class="fas fa-route"></i>
-            <span>경로 계획 모드</span>
-            <div class="route-badge" id="routeStatus">출발지 선택</div>
+    <!-- Brush Panel -->
+    <div class="brush-panel fade-in" style="animation-delay: 0.5s">
+        <div class="brush-option active">
+            <div class="brush-icon brush-sensory">
+                <i class="fas fa-leaf"></i>
+            </div>
+            <span class="brush-text">감각의 붓</span>
         </div>
         
-        <div class="route-options" id="routeOptions" style="display: none;">
-            <div class="route-option-header">경로 유형 선택:</div>
-            <button class="route-option-btn" id="sensoryRouteBtn">
-                <i class="fas fa-heart"></i>
-                <div>
-                    <div class="route-option-title">감각 우선</div>
-                    <div class="route-option-desc">쾌적한 경로</div>
-                </div>
-            </button>
-            <button class="route-option-btn" id="timeRouteBtn">
+        <div class="brush-option">
+            <div class="brush-icon brush-balanced">
+                <i class="fas fa-balance-scale"></i>
+            </div>
+            <span class="brush-text">조화의 붓</span>
+        </div>
+        
+        <div class="brush-option">
+            <div class="brush-icon brush-time">
                 <i class="fas fa-clock"></i>
-                <div>
-                    <div class="route-option-title">시간 우선</div>
-                    <div class="route-option-desc">빠른 경로</div>
-                </div>
-            </button>
-        </div>
-        
-        <button class="secondary-btn" id="cancelRouteBtn">
-            <i class="fas fa-times"></i>
-            취소
-        </button>
-    </div>
-
-    <!-- Route Rating Panel -->
-    <div class="route-rating" id="routeRating" style="display: none;">
-        <div class="rating-header">
-            <span>이 경로는 어떠셨나요?</span>
-            <button class="close-rating" id="closeRating">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="rating-buttons">
-            <button class="rating-btn positive" data-rating="positive">
-                <i class="fas fa-thumbs-up"></i>
-                좋음
-            </button>
-            <button class="rating-btn negative" data-rating="negative">
-                <i class="fas fa-thumbs-down"></i>
-                별로
-            </button>
+            </div>
+            <span class="brush-text">시간의 붓</span>
         </div>
     </div>
 
-    <!-- Undo Action -->
-    <div class="undo-action" id="undoAction" style="display: none;">
-        <span class="undo-text">감각 정보가 추가되었습니다</span>
-        <button class="undo-btn" id="undoBtn">
-            <i class="fas fa-undo"></i>
-            실행취소
-        </button>
-    </div>
+    <!-- Add Touch Button -->
+    <button class="add-touch fade-in" style="animation-delay: 0.6s" title="새로운 감각 터치 추가">
+        <i class="fas fa-plus"></i>
+    </button>
 
-    <!-- Toast Notification -->
-    <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+    <!-- Interactive Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Color palette interactions
+            const colorDrops = document.querySelectorAll('.color-drop');
+            colorDrops.forEach(drop => {
+                drop.addEventListener('click', function() {
+                    colorDrops.forEach(d => d.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
 
-    <!-- Alert Banner -->
-    <div class="alert-banner" id="alertBanner" style="display: none;">
-        <div class="alert-content">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span id="alertText"></span>
-        </div>
-        <button class="alert-close" id="alertClose">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
+            // Brush options
+            const brushOptions = document.querySelectorAll('.brush-option');
+            brushOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    brushOptions.forEach(o => o.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
 
-    <!-- 스크립트 로딩 (의존성 순서대로) -->
-    <!-- 1. 기본 Leaflet 라이브러리 -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- 2. Leaflet 플러그인들 -->
-    <script src="https://unpkg.com/leaflet-geosearch@3.11.0/dist/geosearch.umd.js"></script>
-    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
-    
-    <!-- 3. Polyline 디코딩 라이브러리 -->
-    <script src="https://unpkg.com/@mapbox/polyline@1.1.1/lib/polyline.js"></script>
-    
-    <!-- 4. 메인 애플리케이션 스크립트 -->
-    <script src="script.js"></script>
+            // Tool buttons
+            const toolBtns = document.querySelectorAll('.tool-btn');
+            toolBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    toolBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Add paint drop effect on add button click
+            const addButton = document.querySelector('.add-touch');
+            addButton.addEventListener('click', function() {
+                // Create paint drop effect
+                const drop = document.createElement('div');
+                drop.style.cssText = `
+                    position: fixed;
+                    width: 6px;
+                    height: 6px;
+                    background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 10000;
+                    left: ${Math.random() * window.innerWidth}px;
+                    top: ${Math.random() * window.innerHeight}px;
+                    animation: paintDrop 2s ease-out forwards;
+                `;
+                
+                document.body.appendChild(drop);
+                setTimeout(() => drop.remove(), 2000);
+            });
+
+            // Prism slider effect
+            const prismSlider = document.querySelector('.intensity-slider');
+            prismSlider.addEventListener('input', function() {
+                const value = this.value;
+                const canvas = document.querySelector('.canvas-background');
+                canvas.style.opacity = value;
+                
+                // Update prism shine animation speed
+                const prismIcon = document.querySelector('.prism-icon::before');
+                document.documentElement.style.setProperty('--prism-speed', `${3 - (value * 1.5)}s`);
+            });
+
+            // Canvas ripple effect on click
+            document.querySelector('.canvas-area').addEventListener('click', function(e) {
+                const ripple = document.createElement('div');
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: 20px;
+                    height: 20px;
+                    left: ${x - 10}px;
+                    top: ${y - 10}px;
+                    background: radial-gradient(circle, rgba(255, 107, 107, 0.3) 0%, transparent 70%);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    animation: canvasRipple 1.5s ease-out forwards;
+                `;
+                
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 1500);
+            });
+
+            // Add CSS animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes paintDrop {
+                    0% {
+                        transform: scale(0) rotate(0deg);
+                        opacity: 1;
+                    }
+                    50% {
+                        transform: scale(3) rotate(180deg);
+                        opacity: 0.7;
+                    }
+                    100% {
+                        transform: scale(0) rotate(360deg);
+                        opacity: 0;
+                    }
+                }
+                
+                @keyframes canvasRipple {
+                    0% {
+                        transform: scale(0);
+                        opacity: 0.8;
+                    }
+                    100% {
+                        transform: scale(10);
+                        opacity: 0;
+                    }
+                }
+                
+                .prism-icon::before {
+                    animation-duration: var(--prism-speed, 3s);
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Mobile responsiveness
+            function handleResize() {
+                if (window.innerWidth <= 768) {
+                    // Add mobile-specific interactions
+                    const panels = document.querySelectorAll('.palette-panel, .inspiration-panel');
+                    panels.forEach(panel => {
+                        panel.addEventListener('touchstart', function() {
+                            this.classList.toggle('open');
+                        });
+                    });
+                }
+            }
+
+            handleResize();
+            window.addEventListener('resize', handleResize);
+
+            // Poetic interaction feedback
+            const poeticFeedbacks = [
+                "감각의 물감이 도화지에 스며듭니다...",
+                "새로운 색깔이 세상에 더해졌습니다.",
+                "당신의 프리즘이 빛을 굴절시킵니다.",
+                "또 다른 관점이 지도에 그려집니다.",
+                "감각의 조화가 완성되어 갑니다."
+            ];
+
+            // Show poetic feedback occasionally
+            setInterval(() => {
+                if (Math.random() < 0.1) { // 10% chance every interval
+                    const feedback = poeticFeedbacks[Math.floor(Math.random() * poeticFeedbacks.length)];
+                    const toast = document.createElement('div');
+                    toast.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: rgba(255, 255, 255, 0.95);
+                        backdrop-filter: blur(20px);
+                        border: 1px solid rgba(0, 0, 0, 0.05);
+                        border-radius: 16px;
+                        padding: 16px 24px;
+                        font-family: 'Crimson Text', serif;
+                        font-style: italic;
+                        color: rgba(42, 42, 42, 0.8);
+                        font-size: 14px;
+                        z-index: 10001;
+                        animation: poeticToast 3s ease-in-out forwards;
+                        pointer-events: none;
+                    `;
+                    toast.textContent = feedback;
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 3000);
+                }
+            }, 10000); // Check every 10 seconds
+
+            // Add poetic toast animation
+            const poeticStyle = document.createElement('style');
+            poeticStyle.textContent = `
+                @keyframes poeticToast {
+                    0% {
+                        opacity: 0;
+                        transform: translate(-50%, -50%) scale(0.8);
+                    }
+                    20% {
+                        opacity: 1;
+                        transform: translate(-50%, -50%) scale(1);
+                    }
+                    80% {
+                        opacity: 1;
+                        transform: translate(-50%, -50%) scale(1);
+                    }
+                    100% {
+                        opacity: 0;
+                        transform: translate(-50%, -50%) scale(0.8);
+                    }
+                }
+            `;
+            document.head.appendChild(poeticStyle);
+        });
+    </script>
 </body>
 </html>

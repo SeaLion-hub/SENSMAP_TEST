@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensmap - Brutalist Typography</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', monospace;
+            background: #F5F5F5;
+            color: #000000;
+            height: 100vh;
+            overflow: hidden;
+            font-weight: 400;
+        }
+
+        /* Bold Typography System */
+        .typography-large {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 0.9;
+            letter-spacing: -2px;
+        }
+
+        .typography-medium {
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 1.1;
+            letter-spacing: -1px;
+        }
+
+        .typography-small {
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.2;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Header with Bold Typography */
+        .brutalist-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: #FFFFFF;
+            border-bottom: 4px solid #000000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 1000;
+        }
+
+        .logo-brutalist {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-block {
+            width: 40px;
+            height: 40px;
+            background: #000000;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .logo-text-brutalist {
+            font-size: 32px;
+            font-weight: 700;
+            color: #000000;
+            letter-spacing: -1px;
+        }
+
+        .search-brutalist {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 40px;
+            position: relative;
+        }
+
+        .search-input-brutalist {
+            width: 100%;
+            height: 48px;
+            border: 3px solid #000000;
+            background: #FFFFFF;
+            padding: 0 50px 0 20px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #000000;
+            font-family: 'Space Grotesk', monospace;
+        }
+
+        .search-input-brutalist:focus {
+            outline: none;
+            background: #000000;
+            color: #FFFFFF;
+        }
+
+        .search-input-brutalist::placeholder {
+            color: #666666;
+            font-weight: 500;
+        }
+
+        .search-input-brutalist:focus::placeholder {
+            color: #CCCCCC;
+        }
+
+        .search-btn-brutalist {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 48px;
+            height: 48px;
+            background: #000000;
+            border: none;
+            color: #FFFFFF;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .search-btn-brutalist:hover {
+            background: #333333;
+        }
+
+        .header-actions-brutalist {
+            display: flex;
+            gap: 4px;
+        }
+
+        .action-block {
+            width: 48px;
+            height: 48px;
+            background: #FFFFFF;
+            border: 3px solid #000000;
+            color: #000000;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .action-block:hover,
+        .action-block.active {
+            background: #000000;
+            color: #FFFFFF;
+        }
+
+        /* Brutalist Data Blocks */
+        .data-container {
+            position: fixed;
+            top: 100px;
+            left: 40px;
+            width: 360px;
+            z-index: 999;
+        }
+
+        .data-block {
+            background: #FFFFFF;
+            border: 4px solid #000000;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 8px 8px 0px #000000;
+        }
+
+        .block-header {
+            background: #000000;
+            color: #FFFFFF;
+            padding: 16px 20px;
+            border-bottom: 4px solid #000000;
+        }
+
+        .block-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .block-subtitle {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        .block-content {
+            padding: 20px;
+        }
+
+        /* Sensory Data Grid */
+        .sensory-brutalist-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .sensory-brutalist-item {
+            border: 2px solid #000000;
+            padding: 16px;
+            background: #F5F5F5;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .sensory-brutalist-item:hover {
+            background: #000000;
+            color: #FFFFFF;
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0px #000000;
+        }
+
+        .sensory-brutalist-item.active {
+            background: #000000;
+            color: #FFFFFF;
+        }
+
+        .sensory-number {
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .sensory-label-brutalist {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .sensory-bar-brutalist {
+            width: 100%;
+            height: 6px;
+            background: #CCCCCC;
+            border: 1px solid #000000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sensory-brutalist-item:hover .sensory-bar-brutalist,
+        .sensory-brutalist-item.active .sensory-bar-brutalist {
+            background: #333333;
+            border-color: #FFFFFF;
+        }
+
+        .sensory-bar-fill {
+            height: 100%;
+            background: #000000;
+            transition: width 0.8s ease;
+        }
+
+        .sensory-brutalist-item:hover .sensory-bar-fill,
+        .sensory-brutalist-item.active .sensory-bar-fill {
+            background: #FFFFFF;
+        }
+
+        /* Route Block */
+        .route-list {
+            list-style: none;
+        }
+
+        .route-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 2px solid #F0F0F0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .route-item:hover {
+            background: #F0F0F0;
+            margin: 0 -20px;
+            padding: 12px 20px;
+            border-bottom-color: #000000;
+        }
+
+        .route-item:last-child {
+            border-bottom: none;
+        }
+
+        .route-name-brutalist {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .route-type-brutalist {
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666666;
+        }
+
+        .route-time {
+            font-size: 18px;
+            font-weight: 700;
+            color: #000000;
+        }
+
+        /* Stats Block */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .stat-block {
+            text-align: center;
+            padding: 16px;
+            border: 2px solid #000000;
+            background: #F8F8F8;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 8px;
+            color: #000000;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666666;
+        }
+
+        /* Right Side Commands */
+        .command-panel {
+            position: fixed;
+            top: 100px;
+            right: 40px;
+            width: 280px;
+            z-index: 999;
+        }
+
+        .command-block {
+            background: #000000;
+            color: #FFFFFF;
+            border: 4px solid #000000;
+            margin-bottom: 16px;
+            box-shadow: 6px 6px 0px #CCCCCC;
+        }
+
+        .command-header {
+            padding: 16px 20px;
+            border-bottom: 2px solid #333333;
+        }
+
+        .command-title {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .command-list {
+            padding: 16px 20px;
+        }
+
+        .command-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            cursor: pointer;
+            border-bottom: 1px solid #333333;
+            transition: all 0.2s ease;
+        }
+
+        .command-item:hover {
+            background: #222222;
+            margin: 0 -20px;
+            padding: 8px 20px;
+        }
+
+        .command-item:last-child {
+            border-bottom: none;
+        }
+
+        .command-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .command-text {
+            font-size: 13px;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .command-shortcut {
+            font-size: 11px;
+            font-weight: 600;
+            color: #CCCCCC;
+            font-family: monospace;
+        }
+
+        /* Bottom Command Bar */
+        .command-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #000000;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            z-index: 1000;
+            border-top: 4px solid #000000;
+        }
+
+        .command-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #FFFFFF;
+            font-size: 16px;
+            font-weight: 500;
+            font-family: 'Space Grotesk', monospace;
+            outline: none;
+        }
+
+        .command-input::placeholder {
+            color: #666666;
+            font-weight: 500;
+        }
+
+        .command-prompt {
+            margin-right: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .command-execute {
+            background: #FFFFFF;
+            color: #000000;
+            border: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Space Grotesk', monospace;
+        }
+
+        .command-execute:hover {
+            background: #F0F0F0;
+        }
+
+        /* Map Area */
+        .map-brutalist {
+            position: absolute;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 60px;
+            background: #F8F8F8;
+            border: 4px solid #000000;
+            border-left: none;
+            border-right: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .map-label-brutalist {
+            font-size: 24px;
+            font-weight: 700;
+            color: #CCCCCC;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transform: rotate(-5deg);
+        }
+
+        /* Accessibility Panel */
+        .accessibility-brutalist {
+            position: fixed;
+            bottom: 80px;
+            right: 40px;
+            background: #FFFFFF;
+            border: 3px solid #000000;
+            box-shadow: 4px 4px 0px #000000;
+            z-index: 999;
+        }
+
+        .accessibility-header {
+            background: #000000;
+            color: #FFFFFF;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .accessibility-options {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .accessibility-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            width: 32px;
+            height: 16px;
+            background: #CCCCCC;
+            border: 2px solid #000000;
+            position: relative;
+            transition: background 0.2s ease;
+        }
+
+        .toggle-switch.active {
+            background: #000000;
+        }
+
+        .toggle-knob {
+            width: 12px;
+            height: 12px;
+            background: #FFFFFF;
+            border: 1px solid #000000;
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            transition: transform 0.2s ease;
+        }
+
+        .toggle-switch.active .toggle-knob {
+            transform: translateX(16px);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .brutalist-header {
+                padding: 0 20px;
+                height: 70px;
+            }
+
+            .logo-text-brutalist {
+                font-size: 24px;
+            }
+
+            .search-brutalist {
+                margin: 0 20px;
+                max-width: 200px;
+            }
+
+            .data-container,
+            .command-panel {
+                position: fixed;
+                bottom: 60px;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 50vh;
+                overflow-y: auto;
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+                background: #FFFFFF;
+                border: 3px solid #000000;
+                border-bottom: none;
+            }
+
+            .data-container.open,
+            .command-panel.open {
+                transform: translateY(0);
+            }
+
+            .command-bar {
+                padding: 0 20px;
+            }
+
+            .accessibility-brutalist {
+                bottom: 70px;
+                right: 20px;
+            }
+
+            .map-brutalist {
+                top: 70px;
+            }
+        }
+
+        /* Animation System */
+        .slide-in-left {
+            animation: slideInLeft 0.4s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.4s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Brutalist Header -->
+    <div class="brutalist-header">
+        <div class="logo-brutalist">
+            <div class="logo-block">S</div>
+            <div class="logo-text-brutalist">SENSMAP</div>
+        </div>
+        
+        <div class="search-brutalist">
+            <input type="text" class="search-input-brutalist" placeholder="SEARCH LOCATION">
+            <button class="search-btn-brutalist">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        
+        <div class="header-actions-brutalist">
+            <button class="action-block active">
+                <i class="fas fa-eye"></i>
+            </button>
+            <button class="action-block">
+                <i class="fas fa-layer-group"></i>
+            </button>
+            <button class="action-block">
+                <i class="fas fa-sliders-h"></i>
+            </button>
+            <button class="action-block">
+                <i class="fas fa-user"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Data Container -->
+    <div class="data-container slide-in-left">
+        <!-- Sensory Data Block -->
+        <div class="data-block">
+            <div class="block-header">
+                <div class="block-title">SENSORY DATA</div>
+                <div class="block-subtitle">LIVE ENVIRONMENTAL READINGS</div>
+            </div>
+            <div class="block-content">
+                <div class="sensory-brutalist-grid">
+                    <div class="sensory-brutalist-item active fade-in-up">
+                        <div class="sensory-number">7.2</div>
+                        <div class="sensory-label-brutalist">NOISE</div>
+                        <div class="sensory-bar-brutalist">
+                            <div class="sensory-bar-fill" style="width: 72%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="sensory-brutalist-item fade-in-up" style="animation-delay: 0.1s">
+                        <div class="sensory-number">5.8</div>
+                        <div class="sensory-label-brutalist">LIGHT</div>
+                        <div class="sensory-bar-brutalist">
+                            <div class="sensory-bar-fill" style="width: 58%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="sensory-brutalist-item fade-in-up" style="animation-delay: 0.2s">
+                        <div class="sensory-number">3.4</div>
+                        <div class="sensory-label-brutalist">ODOR</div>
+                        <div class="sensory-bar-brutalist">
+                            <div class="sensory-bar-fill" style="width: 34%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="sensory-brutalist-item fade-in-up" style="animation-delay: 0.3s">
+                        <div class="sensory-number">8.1</div>
+                        <div class="sensory-label-brutalist">CROWD</div>
+                        <div class="sensory-bar-brutalist">
+                            <div class="sensory-bar-fill" style="width: 81%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Route Block -->
+        <div class="data-block">
+            <div class="block-header">
+                <div class="block-title">ROUTE OPTIONS</div>
+                <div class="block-subtitle">OPTIMIZED PATHFINDING</div>
+            </div>
+            <div class="block-content">
+                <ul class="route-list">
+                    <li class="route-item">
+                        <div>
+                            <div class="route-name-brutalist">SENSORY OPTIMIZED</div>
+                            <div class="route-type-brutalist">COMFORT PRIORITY</div>
+                        </div>
+                        <div class="route-time">12M</div>
+                    </li>
+                    <li class="route-item">
+                        <div>
+                            <div class="route-name-brutalist">BALANCED ROUTE</div>
+                            <div class="route-type-brutalist">TIME & COMFORT</div>
+                        </div>
+                        <div class="route-time">8M</div>
+                    </li>
+                    <li class="route-item">
+                        <div>
+                            <div class="route-name-brutalist">FASTEST ROUTE</div>
+                            <div class="route-type-brutalist">TIME PRIORITY</div>
+                        </div>
+                        <div class="route-time">6M</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Stats Block -->
+        <div class="data-block">
+            <div class="block-header">
+                <div class="block-title">SYSTEM STATUS</div>
+                <div class="block-subtitle">REAL-TIME METRICS</div>
+            </div>
+            <div class="block-content">
+                <div class="stats-grid">
+                    <div class="stat-block">
+                        <div class="stat-number">142</div>
+                        <div class="stat-label">SENSORS</div>
+                    </div>
+                    <div class="stat-block">
+                        <div class="stat-number">89</div>
+                        <div class="stat-label">REPORTS</div>
+                    </div>
+                    <div class="stat-block">
+                        <div class="stat-number">6.8</div>
+                        <div class="stat-label">COMFORT</div>
+                    </div>
+                    <div class="stat-block">
+                        <div class="stat-number">1.2K</div>
+                        <div class="stat-label">USERS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Command Panel -->
+    <div class="command-panel slide-in-right">
+        <div class="command-block">
+            <div class="command-header">
+                <div class="command-title">COMMANDS</div>
+            </div>
+            <div class="command-list">
+                <div class="command-item">
+                    <div class="command-icon"><i class="fas fa-crosshairs"></i></div>
+                    <div class="command-text">Locate Position</div>
+                    <div class="command-shortcut">CTRL+L</div>
+                </div>
+                <div class="command-item">
+                    <div class="command-icon"><i class="fas fa-route"></i></div>
+                    <div class="command-text">Find Route</div>
+                    <div class="command-shortcut">CTRL+R</div>
+                </div>
+                <div class="command-item">
+                    <div class="command-icon"><i class="fas fa-plus"></i></div>
+                    <div class="command-text">Add Data Point</div>
+                    <div class="command-shortcut">CTRL+A</div>
+                </div>
+                <div class="command-item">
+                    <div class="command-icon"><i class="fas fa-filter"></i></div>
+                    <div class="command-text">Apply Filter</div>
+                    <div class="command-shortcut">CTRL+F</div>
+                </div>
+                <div class="command-item">
+                    <div class="command-icon"><i class="fas fa-share-alt"></i></div>
+                    <div class="command-text">Share Location</div>
+                    <div class="command-shortcut">CTRL+S</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accessibility Panel -->
+    <div class="accessibility-brutalist">
+        <div class="accessibility-header">ACCESSIBILITY</div>
+        <div class="accessibility-options">
+            <div class="accessibility-toggle">
+                <div class="toggle-switch active">
+                    <div class="toggle-knob"></div>
+                </div>
+                <span>HIGH CONTRAST</span>
+            </div>
+            <div class="accessibility-toggle">
+                <div class="toggle-switch">
+                    <div class="toggle-knob"></div>
+                </div>
+                <span>LARGE TEXT</span>
+            </div>
+            <div class="accessibility-toggle">
+                <div class="toggle-switch">
+                    <div class="toggle-knob"></div>
+                </div>
+                <span>REDUCE MOTION</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Area -->
+    <div class="map-brutalist">
+        <div class="map-label-brutalist">MAP AREA</div>
+    </div>
+
+    <!-- Command Bar -->
+    <div class="command-bar">
+        <div class="command-prompt">></div>
+        <input type="text" class="command-input" placeholder="Type command or search location...">
+        <button class="command-execute">EXECUTE</button>
+    </div>
+</body>
+</html>

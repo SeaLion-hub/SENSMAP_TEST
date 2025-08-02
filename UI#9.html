@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensmap - 2025 감각의 여정</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 2025 Pantone 색상 팔레트 - 모카 무스 기반 */
+        :root {
+            --mocha-mousse: #A0826D;
+            --warm-cream: #F4F1EB;
+            --deep-espresso: #3D2914;
+            --caramel: #D4A574;
+            --soft-latte: #E8DDD4;
+            --rich-cocoa: #6B4E3D;
+            --golden-amber: #E6B17A;
+            --sage-green: #9CAF88;
+            --terracotta: #C17B5C;
+            --warm-white: #FEFCFA;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, var(--warm-cream) 0%, var(--soft-latte) 50%, var(--caramel) 100%);
+            color: var(--deep-espresso);
+            overflow-x: hidden;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 비대칭 레이아웃과 실험적 내비게이션 */
+        .experimental-container {
+            position: relative;
+            min-height: 100vh;
+            display: grid;
+            grid-template-areas: 
+                "header header header"
+                "nav main sidebar"
+                "footer footer footer";
+            grid-template-columns: 280px 1fr 320px;
+            grid-template-rows: auto 1fr auto;
+            gap: 0;
+        }
+
+        /* 겹치는 아트워크와 상반된 색상 조합 */
+        .artistic-header {
+            grid-area: header;
+            position: relative;
+            padding: 40px 60px;
+            background: linear-gradient(45deg, var(--mocha-mousse), var(--terracotta));
+            color: var(--warm-white);
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .artistic-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: rotate(45deg);
+            animation: floatArt 8s ease-in-out infinite;
+        }
+
+        @keyframes floatArt {
+            0%, 100% { transform: rotate(45deg) translateY(0px); }
+            50% { transform: rotate(45deg) translateY(-20px); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 맥시멀리즘 타이포그래피 */
+        .maximal-title {
+            font-family: 'Crimson Text', serif;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 600;
+            line-height: 0.9;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+            position: relative;
+            transform: rotate(-2deg);
+        }
+
+        .maximal-title::after {
+            content: 'SENSE';
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: rgba(255,255,255,0.1);
+            font-size: 1.2em;
+            transform: translate(10px, -10px) rotate(1deg);
+            z-index: -1;
+        }
+
+        .subtitle-warm {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: var(--soft-latte);
+            font-style: italic;
+            transform: rotate(1deg);
+            margin-left: 40px;
+        }
+
+        /* 실험적 내비게이션 */
+        .experimental-nav {
+            grid-area: nav;
+            background: var(--warm-white);
+            padding: 40px 0;
+            position: relative;
+            border-right: 3px solid var(--mocha-mousse);
+            transform: skewY(-1deg);
+            transform-origin: top left;
+        }
+
+        .nav-container {
+            transform: skewY(1deg);
+            padding: 0 30px;
+        }
+
+        .nav-items {
+            list-style: none;
+            space-y: 12px;
+        }
+
+        .nav-item {
+            margin-bottom: 20px;
+            transform: translateX(-20px);
+            animation: slideInStagger 0.6s ease-out forwards;
+        }
+
+        .nav-item:nth-child(1) { animation-delay: 0.1s; }
+        .nav-item:nth-child(2) { animation-delay: 0.2s; }
+        .nav-item:nth-child(3) { animation-delay: 0.3s; }
+        .nav-item:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideInStagger {
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--soft-latte), var(--warm-cream));
+            border: 2px solid transparent;
+            border-radius: 20px 5px 20px 5px;
+            color: var(--rich-cocoa);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link:hover {
+            transform: translateX(8px) rotate(1deg);
+            border-color: var(--mocha-mousse);
+            box-shadow: 0 8px 25px rgba(160, 130, 109, 0.3);
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--mocha-mousse);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--warm-white);
+            font-size: 12px;
+        }
+
+        /* 메인 콘텐츠 - 여백의 미 강조 */
+        .main-content {
+            grid-area: main;
+            padding: 60px;
+            background: var(--warm-white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-section {
+            margin-bottom: 80px;
+            opacity: 0;
+            transform: translateY(40px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .content-section:nth-child(1) { animation-delay: 0.2s; }
+        .content-section:nth-child(2) { animation-delay: 0.4s; }
+        .content-section:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            font-family: 'Crimson Text', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--deep-espresso);
+            margin-bottom: 40px;
+            position: relative;
+            transform: rotate(-1deg);
+        }
+
+        .section-header::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--golden-amber), var(--terracotta));
+            border-radius: 2px;
+            transform: rotate(1deg);
+        }
+
+        /* 감각 데이터 카드 - 인간적인 감성 */
+        .sensory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .sensory-card {
+            background: linear-gradient(135deg, var(--warm-white), var(--soft-latte));
+            border: 3px solid var(--caramel);
+            border-radius: 25px 5px 25px 5px;
+            padding: 30px;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            overflow: hidden;
+            transform: rotate(0.5deg);
+        }
+
+        .sensory-card:nth-child(even) {
+            transform: rotate(-0.5deg);
+        }
+
+        .sensory-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, var(--golden-amber), var(--sage-green), var(--terracotta), var(--golden-amber));
+            opacity: 0;
+            transition: opacity 0.4s;
+            animation: rotate360 10s linear infinite;
+        }
+
+        @keyframes rotate360 {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .sensory-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .sensory-card:hover {
+            transform: translateY(-8px) rotate(0deg) scale(1.02);
+            border-color: var(--mocha-mousse);
+            box-shadow: 0 15px 40px rgba(160, 130, 109, 0.4);
+        }
+
+        .sensory-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--mocha-mousse);
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sensory-label {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--rich-cocoa);
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sensory-progress {
+            width: 100%;
+            height: 8px;
+            background: var(--soft-latte);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--mocha-mousse), var(--golden-amber));
+            border-radius: 4px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* 사이드바 - 상호작용 가능한 요소들 */
+        .interactive-sidebar {
+            grid-area: sidebar;
+            background: linear-gradient(180deg, var(--sage-green), var(--mocha-mousse));
+            padding: 40px 30px;
+            color: var(--warm-white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .interactive-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .sidebar-section {
+            position: relative;
+            z-index: 2;
+            margin-bottom: 40px;
+        }
+
+        .sidebar-title {
+            font-family: 'Crimson Text', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transform: rotate(-1deg);
+        }
+
+        .interactive-element {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .interactive-element::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transition: all 0.4s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .interactive-element:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .interactive-element:hover {
+            transform: translateX(-5px);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .element-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .element-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .element-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* 모션 디자인과 스크롤 애니메이션 */
+        .floating-action {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--terracotta), var(--golden-amber));
+            border: none;
+            border-radius: 50%;
+            color: var(--warm-white);
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(193, 123, 92, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .floating-action:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 12px 35px rgba(193, 123, 92, 0.6);
+        }
+
+        /* 푸터 - 지속 가능한 디자인 정보 */
+        .sustainable-footer {
+            grid-area: footer;
+            background: var(--deep-espresso);
+            color: var(--warm-cream);
+            padding: 40px 60px;
+            text-align: center;
+            position: relative;
+        }
+
+        .eco-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(156, 175, 136, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .eco-icon {
+            color: var(--sage-green);
+        }
+
+        /* 3D 상호작용 요소 시뮬레이션 */
+        .pseudo-3d {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+
+        .pseudo-3d:hover {
+            transform: rotateX(10deg) rotateY(10deg);
+        }
+
+        .pseudo-3d::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            width: 80%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            transform: translateX(-50%) translateZ(-10px);
+            filter: blur(5px);
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1024px) {
+            .experimental-container {
+                grid-template-areas: 
+                    "header"
+                    "main"
+                    "footer";
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr auto;
+            }
+
+            .experimental-nav,
+            .interactive-sidebar {
+                display: none;
+            }
+
+            .artistic-header {
+                padding: 30px;
+            }
+
+            .main-content {
+                padding: 30px;
+            }
+
+            .maximal-title {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sensory-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .artistic-header {
+                padding: 20px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .section-header {
+                font-size: 2rem;
+            }
+
+            .floating-action {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        /* 접근성 개선 */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* 고대비 모드 */
+        @media (prefers-contrast: high) {
+            :root {
+                --deep-espresso: #000000;
+                --warm-white: #ffffff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="experimental-container">
+        <!-- 맥시멀리즘 헤더 -->
+        <header class="artistic-header">
+            <div class="header-content">
+                <h1 class="maximal-title">Sensmap</h1>
+                <p class="subtitle-warm">감각의 여정이 시작되는 곳</p>
+            </div>
+        </header>
+
+        <!-- 실험적 내비게이션 -->
+        <nav class="experimental-nav">
+            <div class="nav-container">
+                <ul class="nav-items">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <div class="nav-icon">
+                                <i class="fas fa-map"></i>
+                            </div>
+                            <span>감각 지도</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <div class="nav-icon">
+                                <i class="fas fa-route"></i>
+                            </div>
+                            <span>경로 탐색</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <div class="nav-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <span>데이터 분석</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <div class="nav-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <span>내 프로필</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="main-content">
+            <section class="content-section">
+                <h2 class="section-header">현재 감각 상태</h2>
+                
+                <div class="sensory-grid">
+                    <div class="sensory-card pseudo-3d">
+                        <div class="sensory-value">7.2</div>
+                        <div class="sensory-label">🎵 소리의 흐름</div>
+                        <div class="sensory-progress">
+                            <div class="progress-fill" style="width: 72%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="sensory-card pseudo-3d">
+                        <div class="sensory-value">5.8</div>
+                        <div class="sensory-label">☀️ 빛의 온도</div>
+                        <div class="sensory-progress">
+                            <div class="progress-fill" style="width: 58%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="sensory-card pseudo-3d">
+                        <div class="sensory-value">3.4</div>
+                        <div class="sensory-label">🌸 향기의 여정</div>
+                        <div class="sensory-progress">
+                            <div class="progress-fill" style="width: 34%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="sensory-card pseudo-3d">
+                        <div class="sensory-value">8.1</div>
+                        <div class="sensory-label">🌊 사람들의 물결</div>
+                        <div class="sensory-progress">
+                            <div class="progress-fill" style="width: 81%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2 class="section-header">오늘의 감각 여정</h2>
+                <p style="font-size: 1.1rem; line-height: 1.8; color: var(--rich-cocoa); margin-bottom: 40px;">
+                    당신만의 감각 프리즘을 통해 세상을 탐험해보세요. 
+                    매 순간이 새로운 색깔로 물들어갑니다.
+                </p>
+                
+                <div style="background: linear-gradient(135deg, var(--soft-latte), var(--warm-cream)); 
+                           border-left: 6px solid var(--golden-amber); 
+                           padding: 30px; 
+                           border-radius: 0 20px 20px 0; 
+                           font-style: italic; 
+                           font-size: 1.1rem;
+                           color: var(--deep-espresso);">
+                    "모든 감각은 우리만의 고유한 언어입니다. 
+                    Sensmap과 함께 당신의 감각 언어를 발견하고 공유해보세요."
+                </div>
+            </section>
+        </main>
+
+        <!-- 상호작용 사이드바 -->
+        <aside class="interactive-sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">실시간 통계</h3>
+                
+                <div class="interactive-element">
+                    <div class="element-content">
+                        <div class="element-title">활성 센서</div>
+                        <div class="element-desc">142개의 감각 센서가 활동 중입니다</div>
+                    </div>
+                </div>
+                
+                <div class="interactive-element">
+                    <div class="element-content">
+                        <div class="element-title">오늘의 기록</div>
+                        <div class="element-desc">89개의 새로운 감각 데이터</div>
+                    </div>
+                </div>
+                
+                <div class="interactive-element">
+                    <div class="element-content">
+                        <div class="element-title">공감 지수</div>
+                        <div class="element-desc">평균 6.8점의 감각 조화</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">감각 커뮤니티</h3>
+                
+                <div class="interactive-element">
+                    <div class="element-content">
+                        <div class="element-title">🌟 오늘의 발견</div>
+                        <div class="element-desc">새로운 감각 조합을 발견한 사용자들</div>
+                    </div>
+                </div>
+                
+                <div class="interactive-element">
+                    <div class="element-content">
+                        <div class="element-title">🎨 창작자들</div>
+                        <div class="element-desc">1,247명의 감각 아티스트와 함께</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 지속 가능한 푸터 -->
+        <footer class="sustainable-footer">
+            <div class="eco-badge">
+                <i class="fas fa-leaf eco-icon"></i>
+                <span>탄소 중립 웹사이트 | 친환경 호스팅</span>
+            </div>
+            <p>더 나은 디지털 환경을 위해 지속 가능한 디자인을 실천합니다</p>
+        </footer>
+    </div>
+
+    <!-- 플로팅 액션 버튼 -->
+    <button class="floating-action" title="새로운 감각 기록하기">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- 스크롤 기반 애니메이션 스크립트 -->
+    <script>
+        // 스크롤 애니메이션과 마이크로 인터랙션
+        document.addEventListener('DOMContentLoaded', function() {
+            // 스크롤 기반 애니메이션
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // 모든 애니메이션 요소 관찰
+            document.querySelectorAll('.content-section, .sensory-card').forEach(el => {
+                observer.observe(el);
+            });
+
+            // 감각 카드 상호작용
+            document.querySelectorAll('.sensory-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.zIndex = '10';
+                    
+                    // 다른 카드들 약간 흐리게
+                    document.querySelectorAll('.sensory-card').forEach(otherCard => {
+                        if (otherCard !== this) {
+                            otherCard.style.opacity = '0.7';
+                            otherCard.style.transform = 'scale(0.95)';
+                        }
+                    });
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.zIndex = '1';
+                    
+                    // 모든 카드 원상복귀
+                    document.querySelectorAll('.sensory-card').forEach(otherCard => {
+                        otherCard.style.opacity = '1';
+                        otherCard.style.transform = '';
+                    });
+                });
+
+                // 카드 클릭 시 상세 애니메이션
+                card.addEventListener('click', function() {
+                    const value = this.querySelector('.sensory-value');
+                    const progress = this.querySelector('.progress-fill');
+                    
+                    // 숫자 애니메이션
+                    value.style.animation = 'none';
+                    setTimeout(() => {
+                        value.style.animation = 'numberPulse 0.6s ease-out';
+                    }, 10);
+                    
+                    // 프로그레스 바 리애니메이션
+                    const currentWidth = progress.style.width;
+                    progress.style.width = '0%';
+                    setTimeout(() => {
+                        progress.style.width = currentWidth;
+                    }, 100);
+                });
+            });
+
+            // 내비게이션 링크 상호작용
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 활성 상태 토글
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 클릭 효과
+                    const icon = this.querySelector('.nav-icon');
+                    icon.style.transform = 'scale(1.3) rotate(360deg)';
+                    setTimeout(() => {
+                        icon.style.transform = '';
+                    }, 300);
+                });
+            });
+
+            // 인터랙티브 사이드바 요소들
+            document.querySelectorAll('.interactive-element').forEach(element => {
+                element.addEventListener('click', function() {
+                    // 카운트업 애니메이션 시뮬레이션
+                    const title = this.querySelector('.element-title');
+                    const originalText = title.textContent;
+                    
+                    title.style.color = 'var(--golden-amber)';
+                    title.style.transform = 'scale(1.1)';
+                    
+                    setTimeout(() => {
+                        title.style.color = '';
+                        title.style.transform = '';
+                    }, 500);
+                });
+            });
+
+            // 플로팅 액션 버튼 상호작용
+            const fab = document.querySelector('.floating-action');
+            fab.addEventListener('click', function() {
+                // 성공적인 추가를 시뮬레이션
+                this.innerHTML = '<i class="fas fa-check"></i>';
+                this.style.background = 'linear-gradient(135deg, var(--sage-green), var(--mocha-mousse))';
+                
+                // 새로운 데이터 카드 추가 애니메이션 시뮬레이션
+                const grid = document.querySelector('.sensory-grid');
+                const newCard = document.createElement('div');
+                newCard.className = 'sensory-card pseudo-3d';
+                newCard.style.opacity = '0';
+                newCard.style.transform = 'scale(0) rotate(10deg)';
+                newCard.innerHTML = `
+                    <div class="sensory-value">+1</div>
+                    <div class="sensory-label">✨ 새로운 감각</div>
+                    <div class="sensory-progress">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                `;
+                
+                grid.appendChild(newCard);
+                
+                setTimeout(() => {
+                    newCard.style.opacity = '1';
+                    newCard.style.transform = 'scale(1) rotate(0deg)';
+                    newCard.querySelector('.progress-fill').style.width = '100%';
+                }, 100);
+                
+                // 버튼 원상복귀
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-plus"></i>';
+                    this.style.background = 'linear-gradient(135deg, var(--terracotta), var(--golden-amber))';
+                    
+                    // 임시 카드 제거
+                    setTimeout(() => {
+                        newCard.style.opacity = '0';
+                        newCard.style.transform = 'scale(0)';
+                        setTimeout(() => newCard.remove(), 300);
+                    }, 2000);
+                }, 1500);
+            });
+
+            // 스크롤에 따른 헤더 변화
+            window.addEventListener('scroll', function() {
+                const header = document.querySelector('.artistic-header');
+                const scrolled = window.pageYOffset;
+                const rate = scrolled * -0.5;
+                
+                if (scrolled > 0) {
+                    header.style.transform = `translateY(${rate}px)`;
+                    header.style.opacity = Math.max(0.3, 1 - scrolled / 500);
+                }
+            });
+
+            // 마우스 팔로우 효과
+            document.addEventListener('mousemove', function(e) {
+                const cursor = document.querySelector('.cursor-glow') || createCursor();
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+
+            function createCursor() {
+                const cursor = document.createElement('div');
+                cursor.className = 'cursor-glow';
+                cursor.style.cssText = `
+                    position: fixed;
+                    width: 20px;
+                    height: 20px;
+                    background: radial-gradient(circle, var(--golden-amber), transparent);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 9999;
+                    mix-blend-mode: multiply;
+                    transform: translate(-50%, -50%);
+                    opacity: 0.3;
+                `;
+                document.body.appendChild(cursor);
+                return cursor;
+            }
+
+            // 키보드 접근성
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    // 포커스된 요소 강조
+                    document.activeElement.style.outline = '3px solid var(--golden-amber)';
+                    document.activeElement.style.outlineOffset = '2px';
+                }
+            });
+
+            // 다크모드 자동 감지 및 적용
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.style.setProperty('--warm-white', '#2A2A2A');
+                document.documentElement.style.setProperty('--warm-cream', '#1A1A1A');
+                document.documentElement.style.setProperty('--deep-espresso', '#F4F1EB');
+            }
+
+            // 성능 최적화를 위한 디바운스 함수
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            // 리사이즈 이벤트 최적화
+            window.addEventListener('resize', debounce(function() {
+                // 모바일에서 비대칭 레이아웃 조정
+                if (window.innerWidth < 768) {
+                    document.querySelectorAll('.sensory-card').forEach((card, index) => {
+                        card.style.transform = index % 2 === 0 ? 'rotate(1deg)' : 'rotate(-1deg)';
+                    });
+                }
+            }, 250));
+
+            // 환경 친화적 애니메이션 (배터리 절약)
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(function(battery) {
+                    if (battery.level < 0.2) {
+                        // 배터리가 낮을 때 애니메이션 축소
+                        document.documentElement.style.setProperty('--animation-duration', '0.1s');
+                        console.log('🔋 배터리 절약 모드: 애니메이션이 최적화되었습니다.');
+                    }
+                });
+            }
+
+            // 접근성 향상을 위한 ARIA 라벨 동적 업데이트
+            document.querySelectorAll('.sensory-card').forEach((card, index) => {
+                const value = card.querySelector('.sensory-value').textContent;
+                const label = card.querySelector('.sensory-label').textContent;
+                card.setAttribute('aria-label', `${label}: ${value}점`);
+                card.setAttribute('role', 'button');
+                card.setAttribute('tabindex', '0');
+            });
+
+            // 사용자 피드백 수집 (익명)
+            setTimeout(() => {
+                if (Math.random() < 0.1) { // 10% 확률로만 표시
+                    const feedback = document.createElement('div');
+                    feedback.style.cssText = `
+                        position: fixed;
+                        bottom: 120px;
+                        right: 20px;
+                        background: var(--warm-white);
+                        border: 2px solid var(--mocha-mousse);
+                        border-radius: 15px;
+                        padding: 15px;
+                        font-size: 0.9rem;
+                        color: var(--deep-espresso);
+                        max-width: 250px;
+                        z-index: 1001;
+                        animation: slideInRight 0.5s ease-out;
+                    `;
+                    feedback.innerHTML = `
+                        <p style="margin-bottom: 10px;">✨ 2025년 디자인이 마음에 드시나요?</p>
+                        <button onclick="this.parentElement.remove()" 
+                                style="background: var(--sage-green); color: white; border: none; 
+                                       border-radius: 8px; padding: 5px 10px; cursor: pointer;">
+                            👍 좋아요!
+                        </button>
+                    `;
+                    document.body.appendChild(feedback);
+                    
+                    setTimeout(() => feedback.remove(), 5000);
+                }
+            }, 3000);
+        });
+
+        // CSS 애니메이션 추가
+        const additionalStyles = document.createElement('style');
+        additionalStyles.textContent = `
+            @keyframes numberPulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.2); color: var(--golden-amber); }
+                100% { transform: scale(1); }
+            }
+
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+
+            .nav-link.active {
+                background: linear-gradient(135deg, var(--mocha-mousse), var(--golden-amber));
+                color: var(--warm-white);
+                transform: translateX(12px) rotate(2deg);
+            }
+
+            .nav-link.active .nav-icon {
+                background: var(--warm-white);
+                color: var(--mocha-mousse);
+            }
+
+            /* 고급 호버 효과 */
+            .sensory-card:hover .sensory-value {
+                text-shadow: 0 0 20px var(--golden-amber);
+                animation: numberPulse 1s ease-in-out infinite;
+            }
+
+            /* 반응형 타이포그래피 */
+            @media (max-width: 480px) {
+                .maximal-title {
+                    font-size: 2.5rem;
+                    line-height: 1.1;
+                }
+                
+                .section-header {
+                    font-size: 1.8rem;
+                }
+            }
+
+            /* 프린트 최적화 */
+            @media print {
+                .floating-action,
+                .experimental-nav,
+                .interactive-sidebar {
+                    display: none;
+                }
+                
+                .main-content {
+                    grid-column: 1 / -1;
+                }
+                
+                .sensory-card {
+                    break-inside: avoid;
+                }
+            }
+        `;
+        document.head.appendChild(additionalStyles);
+    </script>
+</body>
+</html>

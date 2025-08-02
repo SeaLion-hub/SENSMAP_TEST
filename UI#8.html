@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensmap - 감각의 지도</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #FAFAFA;
+            color: #1D1D1F;
+            height: 100vh;
+            overflow: hidden;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Subtle Grid Background */
+        .grid-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+            background-size: 24px 24px;
+            z-index: 0;
+        }
+
+        /* Clean Grid System */
+        .grid-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 320px 1fr 300px;
+            grid-template-rows: 72px 1fr 56px;
+            gap: 0;
+            grid-template-areas:
+                "header header header"
+                "sidebar main rightbar"
+                "footer footer footer";
+        }
+
+        /* Apple-style Header */
+        .header-apple {
+            grid-area: header;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            display: grid;
+            grid-template-columns: 320px 1fr 300px;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .header-logo {
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-right: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .logo-apple {
+            width: 28px;
+            height: 28px;
+            background: #1D1D1F;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .logo-text-apple {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1D1D1F;
+            letter-spacing: -0.4px;
+        }
+
+        .header-search {
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-apple {
+            max-width: 480px;
+            width: 100%;
+            position: relative;
+        }
+
+        .search-input-apple {
+            width: 100%;
+            height: 40px;
+            background: #F6F6F6;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: 10px;
+            padding: 0 44px 0 16px;
+            font-size: 14px;
+            color: #1D1D1F;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .search-input-apple:focus {
+            outline: none;
+            background: #FFFFFF;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+        }
+
+        .search-input-apple::placeholder {
+            color: #86868B;
+        }
+
+        .search-icon-apple {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #86868B;
+            font-size: 14px;
+        }
+
+        .header-actions {
+            padding: 0 32px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            border-left: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .action-apple {
+            width: 40px;
+            height: 40px;
+            background: #F6F6F6;
+            border: none;
+            border-radius: 10px;
+            color: #1D1D1F;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .action-apple:hover {
+            background: #E8E8ED;
+            transform: scale(1.05);
+        }
+
+        .action-apple.active {
+            background: #007AFF;
+            color: #FFFFFF;
+        }
+
+        /* Left Sidebar */
+        .sidebar-apple {
+            grid-area: sidebar;
+            background: #FFFFFF;
+            border-right: 1px solid rgba(0, 0, 0, 0.06);
+            overflow-y: auto;
+            z-index: 999;
+        }
+
+        .sidebar-section {
+            padding: 32px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #1D1D1F;
+            margin-bottom: 4px;
+            letter-spacing: -0.4px;
+        }
+
+        .section-subtitle {
+            font-size: 13px;
+            color: #86868B;
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+
+        /* Clean Sensory Cards */
+        .sensory-apple-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .sensory-apple-card {
+            background: #F6F6F6;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .sensory-apple-card:hover {
+            background: #EBEBEB;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .sensory-apple-card.active {
+            background: #007AFF;
+            color: #FFFFFF;
+            border-color: #007AFF;
+            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.25);
+        }
+
+        .sensory-value-apple {
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 1;
+            margin-bottom: 6px;
+            letter-spacing: -0.6px;
+        }
+
+        .sensory-label-apple {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .sensory-meter-apple {
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 1px;
+            overflow: hidden;
+        }
+
+        .sensory-apple-card.active .sensory-meter-apple {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .sensory-meter-fill-apple {
+            height: 100%;
+            background: #1D1D1F;
+            border-radius: 1px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sensory-apple-card.active .sensory-meter-fill-apple {
+            background: #FFFFFF;
+        }
+
+        /* Route Options */
+        .route-apple-list {
+            list-style: none;
+        }
+
+        .route-apple-item {
+            background: #F6F6F6;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .route-apple-item:hover {
+            background: #EBEBEB;
+            transform: translateX(2px);
+        }
+
+        .route-apple-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .route-info {
+            flex: 1;
+        }
+
+        .route-name-apple {
+            font-size: 15px;
+            font-weight: 500;
+            color: #1D1D1F;
+            margin-bottom: 2px;
+            letter-spacing: -0.2px;
+        }
+
+        .route-desc-apple {
+            font-size: 12px;
+            color: #86868B;
+        }
+
+        .route-time-apple {
+            font-size: 17px;
+            font-weight: 600;
+            color: #1D1D1F;
+            letter-spacing: -0.4px;
+        }
+
+        /* Right Sidebar */
+        .rightbar-apple {
+            grid-area: rightbar;
+            background: #FFFFFF;
+            border-left: 1px solid rgba(0, 0, 0, 0.06);
+            overflow-y: auto;
+            z-index: 999;
+        }
+
+        /* Statistics */
+        .stats-apple-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1px;
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .stat-apple-item {
+            background: #FFFFFF;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .stat-apple-item:hover {
+            background: #F6F6F6;
+        }
+
+        .stat-label-apple {
+            font-size: 13px;
+            color: #86868B;
+            font-weight: 400;
+        }
+
+        .stat-value-apple {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1D1D1F;
+            letter-spacing: -0.4px;
+        }
+
+        /* Chart */
+        .chart-apple {
+            padding: 32px;
+            background: #FFFFFF;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .chart-title-apple {
+            font-size: 17px;
+            font-weight: 600;
+            color: #1D1D1F;
+            margin-bottom: 20px;
+            letter-spacing: -0.4px;
+        }
+
+        .chart-container-apple {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            align-items: end;
+            gap: 3px;
+        }
+
+        .chart-bar-apple {
+            flex: 1;
+            background: #E8E8ED;
+            border-radius: 2px;
+            min-height: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .chart-bar-apple:hover {
+            background: #007AFF;
+        }
+
+        .chart-bar-apple.active {
+            background: #1D1D1F;
+        }
+
+        /* Main Map Area */
+        .main-apple {
+            grid-area: main;
+            background: #F6F6F6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .map-label-apple {
+            font-size: 15px;
+            font-weight: 500;
+            color: #86868B;
+            text-align: center;
+            letter-spacing: -0.2px;
+        }
+
+        /* Footer */
+        .footer-apple {
+            grid-area: footer;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            z-index: 1000;
+        }
+
+        .footer-left {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .footer-center {
+            display: flex;
+            gap: 12px;
+        }
+
+        .footer-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .footer-btn-apple {
+            padding: 8px 16px;
+            background: #F6F6F6;
+            border: none;
+            border-radius: 8px;
+            color: #1D1D1F;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .footer-btn-apple:hover {
+            background: #E8E8ED;
+            transform: translateY(-1px);
+        }
+
+        .footer-btn-apple.primary {
+            background: #007AFF;
+            color: #FFFFFF;
+        }
+
+        .footer-btn-apple.primary:hover {
+            background: #0056CC;
+        }
+
+        .status-indicator-apple {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #86868B;
+        }
+
+        .status-dot-apple {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #30D158;
+        }
+
+        /* Floating Glass Accessibility Panel - 적절한 사용 */
+        .accessibility-apple {
+            position: fixed;
+            top: 88px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            z-index: 998;
+            width: 220px;
+            overflow: hidden;
+        }
+
+        .accessibility-header-apple {
+            padding: 16px 20px 12px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .accessibility-title-apple {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1D1D1F;
+            letter-spacing: -0.2px;
+        }
+
+        .accessibility-content-apple {
+            padding: 16px 20px;
+        }
+
+        .accessibility-option-apple {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .accessibility-option-apple:last-child {
+            margin-bottom: 0;
+        }
+
+        .accessibility-label-apple {
+            font-size: 13px;
+            color: #1D1D1F;
+            font-weight: 400;
+        }
+
+        .apple-toggle {
+            width: 44px;
+            height: 26px;
+            background: #E8E8ED;
+            border: none;
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .apple-toggle.active {
+            background: #30D158;
+        }
+
+        .apple-toggle-knob {
+            width: 22px;
+            height: 22px;
+            background: #FFFFFF;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .apple-toggle.active .apple-toggle-knob {
+            transform: translateX(18px);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 72px 1fr 56px;
+                grid-template-areas:
+                    "header"
+                    "main"
+                    "footer";
+            }
+
+            .header-apple {
+                grid-template-columns: auto 1fr auto;
+                padding: 0 16px;
+            }
+
+            .header-logo,
+            .header-actions {
+                border: none;
+                padding: 0;
+            }
+
+            .header-search {
+                padding: 0 16px;
+            }
+
+            .sidebar-apple,
+            .rightbar-apple {
+                position: fixed;
+                top: 72px;
+                bottom: 56px;
+                width: 320px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 1001;
+                box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+            }
+
+            .rightbar-apple {
+                right: 0;
+                transform: translateX(100%);
+            }
+
+            .sidebar-apple.open {
+                transform: translateX(0);
+            }
+
+            .rightbar-apple.open {
+                transform: translateX(0);
+            }
+
+            .accessibility-apple {
+                right: 16px;
+                top: 88px;
+            }
+
+            .footer-apple {
+                padding: 0 16px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-search {
+                padding: 0 12px;
+            }
+
+            .search-apple {
+                max-width: 200px;
+            }
+
+            .sidebar-apple,
+            .rightbar-apple {
+                width: 100%;
+            }
+
+            .accessibility-apple {
+                left: 16px;
+                right: 16px;
+                width: auto;
+            }
+
+            .footer-center {
+                display: none;
+            }
+        }
+
+        /* Smooth Animations */
+        .fade-in-apple {
+            animation: fadeInApple 0.4s ease-out;
+        }
+
+        @keyframes fadeInApple {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in-apple {
+            animation: slideInApple 0.3s ease-out;
+        }
+
+        @keyframes slideInApple {
+            from { transform: translateX(-12px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Subtle Grid Background -->
+    <div class="grid-background"></div>
+
+    <!-- Grid Container -->
+    <div class="grid-container">
+        <!-- Header -->
+        <header class="header-apple">
+            <div class="header-logo">
+                <div class="logo-apple">S</div>
+                <div class="logo-text-apple">Sensmap</div>
+            </div>
+            
+            <div class="header-search">
+                <div class="search-apple">
+                    <input type="text" class="search-input-apple" placeholder="위치를 검색하세요">
+                    <i class="fas fa-search search-icon-apple"></i>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button class="action-apple active" title="데이터 보기">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="action-apple" title="레이어">
+                    <i class="fas fa-layer-group"></i>
+                </button>
+                <button class="action-apple" title="필터">
+                    <i class="fas fa-sliders-h"></i>
+                </button>
+                <button class="action-apple" title="설정">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Left Sidebar -->
+        <aside class="sidebar-apple fade-in-apple">
+            <section class="sidebar-section">
+                <h2 class="section-title">감각 데이터</h2>
+                <p class="section-subtitle">실시간 환경 측정값</p>
+                
+                <div class="sensory-apple-grid">
+                    <div class="sensory-apple-card active slide-in-apple">
+                        <div class="sensory-value-apple">7.2</div>
+                        <div class="sensory-label-apple">소음 수준</div>
+                        <div class="sensory-meter-apple">
+                            <div class="sensory-meter-fill-apple" style="width: 72%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="sensory-apple-card slide-in-apple" style="animation-delay: 0.1s">
+                        <div class="sensory-value-apple">5.8</div>
+                        <div class="sensory-label-apple">빛 강도</div>
+                        <div class="sensory-meter-apple">
+                            <div class="sensory-meter-fill-apple" style="width: 58%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="sensory-apple-card slide-in-apple" style="animation-delay: 0.2s">
+                        <div class="sensory-value-apple">3.4</div>
+                        <div class="sensory-label-apple">냄새 강도</div>
+                        <div class="sensory-meter-apple">
+                            <div class="sensory-meter-fill-apple" style="width: 34%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="sensory-apple-card slide-in-apple" style="animation-delay: 0.3s">
+                        <div class="sensory-value-apple">8.1</div>
+                        <div class="sensory-label-apple">혼잡도</div>
+                        <div class="sensory-meter-apple">
+                            <div class="sensory-meter-fill-apple" style="width: 81%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="sidebar-section">
+                <h2 class="section-title">경로 계획</h2>
+                <p class="section-subtitle">감각 선호도 기반 최적 경로</p>
+                
+                <ul class="route-apple-list">
+                    <li class="route-apple-item">
+                        <div class="route-info">
+                            <div class="route-name-apple">감각 최적화</div>
+                            <div class="route-desc-apple">쾌적함 우선 경로</div>
+                        </div>
+                        <div class="route-time-apple">12분</div>
+                    </li>
+                    <li class="route-apple-item">
+                        <div class="route-info">
+                            <div class="route-name-apple">균형 경로</div>
+                            <div class="route-desc-apple">시간과 쾌적함의 균형</div>
+                        </div>
+                        <div class="route-time-apple">8분</div>
+                    </li>
+                    <li class="route-apple-item">
+                        <div class="route-info">
+                            <div class="route-name-apple">최단 경로</div>
+                            <div class="route-desc-apple">시간 우선 경로</div>
+                        </div>
+                        <div class="route-time-apple">6분</div>
+                    </li>
+                </ul>
+            </section>
+        </aside>
+
+        <!-- Main Map Area -->
+        <main class="main-apple">
+            <div class="map-label-apple">
+                <i class="fas fa-map" style="font-size: 20px; margin-bottom: 8px; display: block; opacity: 0.5;"></i>
+                지도 시각화 영역
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="rightbar-apple fade-in-apple" style="animation-delay: 0.2s">
+            <section class="chart-apple">
+                <h3 class="chart-title-apple">활동 타임라인</h3>
+                <div class="chart-container-apple">
+                    <div class="chart-bar-apple" style="height: 45%"></div>
+                    <div class="chart-bar-apple" style="height: 67%"></div>
+                    <div class="chart-bar-apple active" style="height: 89%"></div>
+                    <div class="chart-bar-apple" style="height: 52%"></div>
+                    <div class="chart-bar-apple" style="height: 78%"></div>
+                    <div class="chart-bar-apple" style="height: 34%"></div>
+                    <div class="chart-bar-apple" style="height: 56%"></div>
+                    <div class="chart-bar-apple" style="height: 90%"></div>
+                    <div class="chart-bar-apple" style="height: 23%"></div>
+                    <div class="chart-bar-apple" style="height: 45%"></div>
+                </div>
+            </section>
+
+            <section class="sidebar-section">
+                <h2 class="section-title">시스템 지표</h2>
+                <div class="stats-apple-grid">
+                    <div class="stat-apple-item slide-in-apple">
+                        <div class="stat-label-apple">활성 센서</div>
+                        <div class="stat-value-apple">142</div>
+                    </div>
+                    <div class="stat-apple-item slide-in-apple" style="animation-delay: 0.1s">
+                        <div class="stat-label-apple">오늘 리포트</div>
+                        <div class="stat-value-apple">89</div>
+                    </div>
+                    <div class="stat-apple-item slide-in-apple" style="animation-delay: 0.2s">
+                        <div class="stat-label-apple">평균 쾌적도</div>
+                        <div class="stat-value-apple">6.8</div>
+                    </div>
+                    <div class="stat-apple-item slide-in-apple" style="animation-delay: 0.3s">
+                        <div class="stat-label-apple">활성 사용자</div>
+                        <div class="stat-value-apple">1,247</div>
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Footer -->
+        <footer class="footer-apple">
+            <div class="footer-left">
+                <div class="status-indicator-apple">
+                    <div class="status-dot-apple"></div>
+                    <span>시스템 정상 운영</span>
+                </div>
+                <div class="status-indicator-apple">
+                    <span>마지막 업데이트: 2분 전</span>
+                </div>
+            </div>
+            
+            <div class="footer-center">
+                <button class="footer-btn-apple">
+                    <i class="fas fa-crosshairs"></i> 위치
+                </button>
+                <button class="footer-btn-apple">
+                    <i class="fas fa-route"></i> 경로
+                </button>
+                <button class="footer-btn-apple primary">
+                    <i class="fas fa-plus"></i> 데이터 추가
+                </button>
+            </div>
+            
+            <div class="footer-right">
+                <button class="footer-btn-apple">내보내기</button>
+                <button class="footer-btn-apple">공유</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Accessibility Panel - 적절한 Glassmorphism 사용 -->
+    <div class="accessibility-apple fade-in-apple" style="animation-delay: 0.4s">
+        <div class="accessibility-header-apple">
+            <div class="accessibility-title-apple">접근성</div>
+        </div>
+        <div class="accessibility-content-apple">
+            <div class="accessibility-option-apple">
+                <div class="accessibility-label-apple">고대비 모드</div>
+                <div class="apple-toggle active">
+                    <div class="apple-toggle-knob"></div>
+                </div>
+            </div>
+            <div class="accessibility-option-apple">
+                <div class="accessibility-label-apple">큰 텍스트</div>
+                <div class="apple-toggle">
+                    <div class="apple-toggle-knob"></div>
+                </div>
+            </div>
+            <div class="accessibility-option-apple">
+                <div class="accessibility-label-apple">애니메이션 줄이기</div>
+                <div class="apple-toggle">
+                    <div class="apple-toggle-knob"></div>
+                </div>
+            </div>
+            <div class="accessibility-option-apple">
+                <div class="accessibility-label-apple">스크린 리더</div>
+                <div class="apple-toggle">
+                    <div class="apple-toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Elegant Notification -->
+    <div style="position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); border-radius: 12px; padding: 12px 20px; color: #FFFFFF; font-size: 13px; font-weight: 500; z-index: 1002; animation: slideInApple 0.4s ease-out; animation-delay: 0.6s; animation-fill-mode: both;">
+        <i class="fas fa-check-circle" style="color: #30D158; margin-right: 8px;"></i>
+        새로운 센서 데이터가 수신되었습니다
+    </div>
+
+    <!-- Interactive Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Apple-style card interactions
+            const appleCards = document.querySelectorAll('.sensory-apple-card, .stat-apple-item, .route-apple-item');
+            
+            appleCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    // Handle sensory card selection
+                    if (this.classList.contains('sensory-apple-card')) {
+                        document.querySelectorAll('.sensory-apple-card').forEach(c => c.classList.remove('active'));
+                        this.classList.add('active');
+                    }
+                });
+            });
+
+            // Apple toggle interactions
+            const toggles = document.querySelectorAll('.apple-toggle');
+            toggles.forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                });
+            });
+
+            // Action button interactions
+            const actionBtns = document.querySelectorAll('.action-apple');
+            actionBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    actionBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Chart bar interactions
+            const chartBars = document.querySelectorAll('.chart-bar-apple');
+            chartBars.forEach(bar => {
+                bar.addEventListener('click', function() {
+                    chartBars.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Search focus enhancement
+            const searchInput = document.querySelector('.search-input-apple');
+            searchInput.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            searchInput.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+
+            // Elegant button feedback
+            const buttons = document.querySelectorAll('.footer-btn-apple, .action-apple');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Create subtle scale animation
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 100);
+                    
+                    // Add ripple effect for primary buttons
+                    if (this.classList.contains('primary')) {
+                        const ripple = document.createElement('div');
+                        const rect = this.getBoundingClientRect();
+                        const size = Math.max(rect.width, rect.height);
+                        const x = e.clientX - rect.left - size / 2;
+                        const y = e.clientY - rect.top - size / 2;
+                        
+                        ripple.style.cssText = `
+                            position: absolute;
+                            width: ${size}px;
+                            height: ${size}px;
+                            left: ${x}px;
+                            top: ${y}px;
+                            background: rgba(255, 255, 255, 0.3);
+                            border-radius: 50%;
+                            transform: scale(0);
+                            animation: appleRipple 0.4s ease-out;
+                            pointer-events: none;
+                        `;
+                        
+                        this.style.position = 'relative';
+                        this.style.overflow = 'hidden';
+                        this.appendChild(ripple);
+                        
+                        setTimeout(() => ripple.remove(), 400);
+                    }
+                });
+            });
+
+            // Mobile menu toggle (for responsive design)
+            function toggleSidebar(side) {
+                const sidebar = document.querySelector(side === 'left' ? '.sidebar-apple' : '.rightbar-apple');
+                sidebar.classList.toggle('open');
+                
+                // Close other sidebar
+                const otherSidebar = document.querySelector(side === 'left' ? '.rightbar-apple' : '.sidebar-apple');
+                otherSidebar.classList.remove('open');
+            }
+
+            // Add mobile menu buttons functionality
+            if (window.innerWidth <= 1024) {
+                const leftMenuBtn = document.createElement('button');
+                leftMenuBtn.className = 'action-apple';
+                leftMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                leftMenuBtn.addEventListener('click', () => toggleSidebar('left'));
+                
+                const rightMenuBtn = document.createElement('button');
+                rightMenuBtn.className = 'action-apple';
+                rightMenuBtn.innerHTML = '<i class="fas fa-chart-bar"></i>';
+                rightMenuBtn.addEventListener('click', () => toggleSidebar('right'));
+                
+                const headerActions = document.querySelector('.header-actions');
+                headerActions.insertBefore(leftMenuBtn, headerActions.firstChild);
+                headerActions.appendChild(rightMenuBtn);
+            }
+
+            // Smooth scroll for sidebar sections
+            const sidebarSections = document.querySelectorAll('.sidebar-section');
+            sidebarSections.forEach((section, index) => {
+                section.style.animationDelay = `${index * 0.1}s`;
+                section.classList.add('fade-in-apple');
+            });
+
+            // Add CSS animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes appleRipple {
+                    to {
+                        transform: scale(2);
+                        opacity: 0;
+                    }
+                }
+                
+                .search-apple {
+                    transition: transform 0.2s ease;
+                }
+                
+                @media (prefers-reduced-motion: reduce) {
+                    *, *::before, *::after {
+                        animation-duration: 0.01ms !important;
+                        animation-iteration-count: 1 !important;
+                        transition-duration: 0.01ms !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Keyboard navigation support
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    // Close any open sidebars
+                    document.querySelectorAll('.sidebar-apple, .rightbar-apple').forEach(sidebar => {
+                        sidebar.classList.remove('open');
+                    });
+                }
+                
+                if (e.key === '/' && !e.target.matches('input')) {
+                    e.preventDefault();
+                    document.querySelector('.search-input-apple').focus();
+                }
+            });
+
+            // Auto-hide notification
+            const notification = document.querySelector('[style*="bottom: 72px"]');
+            if (notification) {
+                setTimeout(() => {
+                    notification.style.animation = 'slideInApple 0.3s ease-out reverse';
+                    setTimeout(() => notification.remove(), 300);
+                }, 4000);
+            }
+
+            // Performance monitoring (Apple-style attention to detail)
+            window.addEventListener('load', () => {
+                const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+                if (loadTime > 1000) {
+                    console.log('⚠️ Page load time:', loadTime + 'ms (optimizations needed)');
+                } else {
+                    console.log('✅ Page load time:', loadTime + 'ms (excellent)');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensmap - Geometric Minimalism</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #FAFAFA;
+            color: #1A1A1A;
+            height: 100vh;
+            overflow: hidden;
+            line-height: 1.4;
+        }
+
+        /* Geometric Grid Background */
+        .geometric-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(26, 26, 26, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(26, 26, 26, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0;
+        }
+
+        /* Minimal Header Bar */
+        .header-strip {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #FFFFFF;
+            border-bottom: 1px solid #E0E0E0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .logo-minimal {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-square {
+            width: 32px;
+            height: 32px;
+            background: #1A1A1A;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .logo-text-minimal {
+            font-size: 20px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            color: #1A1A1A;
+        }
+
+        .search-minimal {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 40px;
+        }
+
+        .search-input-minimal {
+            width: 100%;
+            height: 36px;
+            border: 1px solid #E0E0E0;
+            border-radius: 2px;
+            padding: 0 40px 0 16px;
+            font-size: 14px;
+            color: #1A1A1A;
+            background: #FAFAFA;
+            transition: all 0.2s ease;
+        }
+
+        .search-input-minimal:focus {
+            outline: none;
+            border-color: #1A1A1A;
+            background: #FFFFFF;
+        }
+
+        .search-input-minimal::placeholder {
+            color: #9E9E9E;
+        }
+
+        .search-icon-minimal {
+            position: relative;
+            margin-left: -32px;
+            color: #9E9E9E;
+            pointer-events: none;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-minimal {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #E0E0E0;
+            border-radius: 2px;
+            background: #FFFFFF;
+            color: #1A1A1A;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .control-minimal:hover {
+            background: #F5F5F5;
+            border-color: #BDBDBD;
+        }
+
+        .control-minimal.active {
+            background: #1A1A1A;
+            color: #FFFFFF;
+            border-color: #1A1A1A;
+        }
+
+        /* Geometric Panels */
+        .panel-geometric {
+            position: fixed;
+            background: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            z-index: 999;
+        }
+
+        .left-panel {
+            top: 80px;
+            left: 40px;
+            width: 280px;
+            height: calc(100vh - 160px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .right-panel {
+            top: 80px;
+            right: 40px;
+            width: 320px;
+            max-height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .panel-header-minimal {
+            padding: 20px;
+            border-bottom: 1px solid #F0F0F0;
+        }
+
+        .panel-title-minimal {
+            font-size: 16px;
+            font-weight: 400;
+            color: #1A1A1A;
+            margin-bottom: 4px;
+        }
+
+        .panel-subtitle-minimal {
+            font-size: 12px;
+            color: #757575;
+            font-weight: 300;
+        }
+
+        .panel-content-minimal {
+            padding: 20px;
+            flex: 1;
+        }
+
+        /* Sensory Data Grid */
+        .sensory-grid-minimal {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .sensory-item-minimal {
+            border: 1px solid #F0F0F0;
+            padding: 16px;
+            background: #FAFAFA;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .sensory-item-minimal:hover {
+            background: #F5F5F5;
+            border-color: #E0E0E0;
+            transform: translateY(-1px);
+        }
+
+        .sensory-item-minimal.active {
+            background: #1A1A1A;
+            border-color: #1A1A1A;
+            color: #FFFFFF;
+        }
+
+        .sensory-label-minimal {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            opacity: 0.7;
+        }
+
+        .sensory-value-minimal {
+            font-size: 24px;
+            font-weight: 300;
+            margin-bottom: 8px;
+        }
+
+        .sensory-bar-minimal {
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .sensory-item-minimal.active .sensory-bar-minimal {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .sensory-fill-minimal {
+            height: 100%;
+            background: #1A1A1A;
+            transition: width 0.8s ease;
+        }
+
+        .sensory-item-minimal.active .sensory-fill-minimal {
+            background: #FFFFFF;
+        }
+
+        /* Route Information */
+        .route-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #F0F0F0;
+        }
+
+        .route-option-minimal {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #F8F8F8;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .route-option-minimal:hover {
+            background: #FAFAFA;
+            margin: 0 -20px;
+            padding: 12px 20px;
+        }
+
+        .route-option-minimal:last-child {
+            border-bottom: none;
+        }
+
+        .route-text-minimal {
+            flex: 1;
+        }
+
+        .route-name-minimal {
+            font-size: 14px;
+            font-weight: 400;
+            margin-bottom: 2px;
+        }
+
+        .route-desc-minimal {
+            font-size: 11px;
+            color: #757575;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .route-metric-minimal {
+            font-size: 12px;
+            color: #1A1A1A;
+            font-weight: 300;
+        }
+
+        /* Data Visualization */
+        .data-section {
+            padding: 20px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #F5F5F5;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #757575;
+        }
+
+        .metric-value {
+            font-size: 16px;
+            font-weight: 300;
+            color: #1A1A1A;
+        }
+
+        .metric-chart {
+            width: 100%;
+            height: 100px;
+            background: #FAFAFA;
+            border: 1px solid #F0F0F0;
+            margin: 16px 0;
+            display: flex;
+            align-items: end;
+            padding: 8px;
+            gap: 2px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: #E0E0E0;
+            min-height: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .chart-bar.active {
+            background: #1A1A1A;
+        }
+
+        /* Bottom Action Strip */
+        .action-strip {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #FFFFFF;
+            border-top: 1px solid #E0E0E0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            z-index: 1000;
+        }
+
+        .action-minimal {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: 1px solid #E0E0E0;
+            background: #FFFFFF;
+            color: #1A1A1A;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .action-minimal:hover {
+            background: #F5F5F5;
+            border-color: #BDBDBD;
+        }
+
+        .action-minimal.primary {
+            background: #1A1A1A;
+            color: #FFFFFF;
+            border-color: #1A1A1A;
+        }
+
+        .action-minimal.primary:hover {
+            background: #333333;
+        }
+
+        /* Map Container */
+        .map-area {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 60px;
+            background: #F8F8F8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .map-placeholder {
+            color: #BDBDBD;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+
+        /* Geometric Accent Elements */
+        .accent-line {
+            position: fixed;
+            background: #1A1A1A;
+            z-index: 998;
+        }
+
+        .line-vertical {
+            width: 1px;
+            height: 100%;
+            left: 360px;
+            top: 60px;
+            opacity: 0.1;
+        }
+
+        .line-horizontal {
+            height: 1px;
+            width: 100%;
+            top: 140px;
+            left: 0;
+            opacity: 0.05;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-strip {
+                padding: 0 20px;
+            }
+
+            .search-minimal {
+                margin: 0 20px;
+                max-width: 200px;
+            }
+
+            .left-panel,
+            .right-panel {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                top: auto;
+                width: 100%;
+                height: 60vh;
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+                border-radius: 8px 8px 0 0;
+            }
+
+            .left-panel.open,
+            .right-panel.open {
+                transform: translateY(0);
+            }
+
+            .action-strip {
+                padding: 0 20px;
+                justify-content: space-between;
+            }
+
+            .accent-line {
+                display: none;
+            }
+
+            .map-area {
+                left: 0;
+                right: 0;
+            }
+        }
+
+        /* Subtle Animations */
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Geometric Grid Background -->
+    <div class="geometric-bg"></div>
+
+    <!-- Geometric Accent Lines -->
+    <div class="accent-line line-vertical"></div>
+    <div class="accent-line line-horizontal"></div>
+
+    <!-- Minimal Header -->
+    <div class="header-strip">
+        <div class="logo-minimal">
+            <div class="logo-square">S</div>
+            <div class="logo-text-minimal">Sensmap</div>
+        </div>
+        
+        <div class="search-minimal">
+            <input type="text" class="search-input-minimal" placeholder="Search location...">
+            <i class="fas fa-search search-icon-minimal"></i>
+        </div>
+        
+        <div class="header-controls">
+            <button class="control-minimal active">
+                <i class="fas fa-eye"></i>
+            </button>
+            <button class="control-minimal">
+                <i class="fas fa-layer-group"></i>
+            </button>
+            <button class="control-minimal">
+                <i class="fas fa-sliders-h"></i>
+            </button>
+            <button class="control-minimal">
+                <i class="fas fa-user"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Left Panel - Sensory Data -->
+    <div class="panel-geometric left-panel fade-in">
+        <div class="panel-header-minimal">
+            <div class="panel-title-minimal">Sensory Data</div>
+            <div class="panel-subtitle-minimal">Real-time environmental readings</div>
+        </div>
+        
+        <div class="panel-content-minimal">
+            <div class="sensory-grid-minimal">
+                <div class="sensory-item-minimal active slide-up">
+                    <div class="sensory-label-minimal">Noise</div>
+                    <div class="sensory-value-minimal">7.2</div>
+                    <div class="sensory-bar-minimal">
+                        <div class="sensory-fill-minimal" style="width: 72%"></div>
+                    </div>
+                </div>
+                
+                <div class="sensory-item-minimal slide-up" style="animation-delay: 0.1s">
+                    <div class="sensory-label-minimal">Light</div>
+                    <div class="sensory-value-minimal">5.8</div>
+                    <div class="sensory-bar-minimal">
+                        <div class="sensory-fill-minimal" style="width: 58%"></div>
+                    </div>
+                </div>
+                
+                <div class="sensory-item-minimal slide-up" style="animation-delay: 0.2s">
+                    <div class="sensory-label-minimal">Odor</div>
+                    <div class="sensory-value-minimal">3.4</div>
+                    <div class="sensory-bar-minimal">
+                        <div class="sensory-fill-minimal" style="width: 34%"></div>
+                    </div>
+                </div>
+                
+                <div class="sensory-item-minimal slide-up" style="animation-delay: 0.3s">
+                    <div class="sensory-label-minimal">Crowd</div>
+                    <div class="sensory-value-minimal">8.1</div>
+                    <div class="sensory-bar-minimal">
+                        <div class="sensory-fill-minimal" style="width: 81%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="route-section">
+                <div class="panel-title-minimal" style="margin-bottom: 16px;">Route Options</div>
+                
+                <div class="route-option-minimal">
+                    <div class="route-text-minimal">
+                        <div class="route-name-minimal">Sensory Optimized</div>
+                        <div class="route-desc-minimal">Comfort Priority</div>
+                    </div>
+                    <div class="route-metric-minimal">12 min</div>
+                </div>
+                
+                <div class="route-option-minimal">
+                    <div class="route-text-minimal">
+                        <div class="route-name-minimal">Balanced Route</div>
+                        <div class="route-desc-minimal">Time & Comfort</div>
+                    </div>
+                    <div class="route-metric-minimal">8 min</div>
+                </div>
+                
+                <div class="route-option-minimal">
+                    <div class="route-text-minimal">
+                        <div class="route-name-minimal">Fastest Route</div>
+                        <div class="route-desc-minimal">Time Priority</div>
+                    </div>
+                    <div class="route-metric-minimal">6 min</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel - Analytics -->
+    <div class="panel-geometric right-panel fade-in" style="animation-delay: 0.2s">
+        <div class="panel-header-minimal">
+            <div class="panel-title-minimal">Analytics</div>
+            <div class="panel-subtitle-minimal">Environmental insights</div>
+        </div>
+        
+        <div class="data-section">
+            <div class="metric-row">
+                <div class="metric-label">Active Sensors</div>
+                <div class="metric-value">142</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-label">Reports Today</div>
+                <div class="metric-value">89</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-label">Average Comfort</div>
+                <div class="metric-value">6.8</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-label">Active Users</div>
+                <div class="metric-value">1,247</div>
+            </div>
+            
+            <div class="metric-chart">
+                <div class="chart-bar" style="height: 40%"></div>
+                <div class="chart-bar" style="height: 65%"></div>
+                <div class="chart-bar active" style="height: 80%"></div>
+                <div class="chart-bar" style="height: 55%"></div>
+                <div class="chart-bar" style="height: 72%"></div>
+                <div class="chart-bar" style="height: 45%"></div>
+                <div class="chart-bar" style="height: 60%"></div>
+                <div class="chart-bar" style="height: 85%"></div>
+                <div class="chart-bar" style="height: 30%"></div>
+                <div class="chart-bar" style="height: 50%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Area -->
+    <div class="map-area">
+        <div class="map-placeholder">Map Area</div>
+    </div>
+
+    <!-- Bottom Action Strip -->
+    <div class="action-strip">
+        <button class="action-minimal">
+            <i class="fas fa-crosshairs"></i>
+            Locate
+        </button>
+        <button class="action-minimal">
+            <i class="fas fa-route"></i>
+            Route
+        </button>
+        <button class="action-minimal primary">
+            <i class="fas fa-plus"></i>
+            Add Data
+        </button>
+        <button class="action-minimal">
+            <i class="fas fa-filter"></i>
+            Filter
+        </button>
+        <button class="action-minimal">
+            <i class="fas fa-share-alt"></i>
+            Share
+        </button>
+    </div>
+</body>
+</html>

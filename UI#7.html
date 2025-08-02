@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensmap - 감각의 도화지</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #FEFEFE;
+            color: #2A2A2A;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Canvas Background - 도화지 질감 */
+        .canvas-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 248, 240, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(248, 250, 255, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(250, 255, 248, 0.3) 0%, transparent 50%);
+            background-size: 100% 100%;
+            z-index: 0;
+        }
+
+        /* 미세한 종이 질감 */
+        .canvas-background::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 1px 1px, rgba(0,0,0,0.01) 1px, transparent 0);
+            background-size: 20px 20px;
+            opacity: 0.3;
+        }
+
+        /* Minimal Header - 화가의 서명처럼 */
+        .artist-header {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            right: 24px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            z-index: 1000;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .signature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .signature-mark {
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .signature-text {
+            font-family: 'Crimson Text', serif;
+            font-size: 22px;
+            font-weight: 400;
+            color: #2A2A2A;
+            letter-spacing: -0.3px;
+        }
+
+        .canvas-search {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 40px;
+            position: relative;
+        }
+
+        .search-canvas {
+            width: 100%;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 18px;
+            padding: 0 40px 0 20px;
+            font-size: 14px;
+            color: #2A2A2A;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .search-canvas:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(0, 0, 0, 0.15);
+            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.08);
+        }
+
+        .search-canvas::placeholder {
+            color: rgba(42, 42, 42, 0.5);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(42, 42, 42, 0.4);
+            font-size: 12px;
+        }
+
+        .canvas-tools {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tool-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 50%;
+            color: rgba(42, 42, 42, 0.7);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .tool-btn:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(0, 0, 0, 0.15);
+            color: #FF6B6B;
+            transform: translateY(-1px);
+        }
+
+        .tool-btn.active {
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);
+        }
+
+        /* Palette Panel - 화가의 팔레트 */
+        .palette-panel {
+            position: fixed;
+            top: 110px;
+            left: 24px;
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .palette-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .palette-title {
+            font-family: 'Crimson Text', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #2A2A2A;
+            margin-bottom: 4px;
+        }
+
+        .palette-subtitle {
+            font-size: 12px;
+            color: rgba(42, 42, 42, 0.6);
+            font-style: italic;
+        }
+
+        .color-palette {
+            padding: 20px 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* 감각 색상 - 물감 방울처럼 */
+        .color-drop {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 20px;
+            padding: 20px 16px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .color-drop::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            transition: all 0.4s ease;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+
+        .color-drop:hover::before {
+            width: 100%;
+            height: 100%;
+        }
+
+        .color-drop.noise::before { background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 107, 107, 0.05)); }
+        .color-drop.light::before { background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05)); }
+        .color-drop.odor::before { background: linear-gradient(135deg, rgba(156, 39, 176, 0.1), rgba(156, 39, 176, 0.05)); }
+        .color-drop.crowd::before { background: linear-gradient(135deg, rgba(78, 205, 196, 0.1), rgba(78, 205, 196, 0.05)); }
+
+        .color-drop:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-drop.active {
+            background: rgba(255, 255, 255, 1);
+            border-color: rgba(0, 0, 0, 0.12);
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .color-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+            position: relative;
+            z-index: 2;
+        }
+
+        .color-drop.noise .color-icon { color: #FF6B6B; }
+        .color-drop.light .color-icon { color: #FFC107; }
+        .color-drop.odor .color-icon { color: #9C27B0; }
+        .color-drop.crowd .color-icon { color: #4ECDC4; }
+
+        .color-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #2A2A2A;
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .color-value {
+            font-size: 20px;
+            font-weight: 300;
+            color: #2A2A2A;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Brush Panel - 붓 선택 (경로 옵션) */
+        .brush-panel {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 24px;
+            padding: 16px 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            z-index: 999;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .brush-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .brush-option:hover {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(0, 0, 0, 0.08);
+        }
+
+        .brush-option.active {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(78, 205, 196, 0.1));
+            border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        .brush-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+
+        .brush-sensory { background: linear-gradient(135deg, #4CAF50, #2E7D32); }
+        .brush-balanced { background: linear-gradient(135deg, #FF9800, #F57C00); }
+        .brush-time { background: linear-gradient(135deg, #2196F3, #1976D2); }
+
+        .brush-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: #2A2A2A;
+        }
+
+        /* Canvas Area - 도화지 */
+        .canvas-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(255, 248, 240, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(248, 250, 255, 0.1) 0%, transparent 50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .canvas-watermark {
+            font-family: 'Crimson Text', serif;
+            font-size: 16px;
+            color: rgba(42, 42, 42, 0.15);
+            font-style: italic;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* Inspiration Panel - 영감 노트 */
+        .inspiration-panel {
+            position: fixed;
+            top: 110px;
+            right: 24px;
+            width: 260px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .inspiration-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .inspiration-title {
+            font-family: 'Crimson Text', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #2A2A2A;
+            margin-bottom: 4px;
+        }
+
+        .inspiration-subtitle {
+            font-size: 12px;
+            color: rgba(42, 42, 42, 0.6);
+            font-style: italic;
+        }
+
+        .inspiration-content {
+            padding: 20px 24px;
+        }
+
+        .inspiration-quote {
+            font-family: 'Crimson Text', serif;
+            font-size: 14px;
+            color: rgba(42, 42, 42, 0.8);
+            font-style: italic;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            padding-left: 16px;
+            border-left: 2px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .stats-sketch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-note {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 18px;
+            font-weight: 300;
+            color: #2A2A2A;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: rgba(42, 42, 42, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Add Button - 새 붓터치 */
+        .add-touch {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
+        }
+
+        .add-touch:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Prism Filter - 프리즘 효과 */
+        .prism-filter {
+            position: fixed;
+            top: 180px;
+            left: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            z-index: 998;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .prism-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #FFC107, #9C27B0);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prism-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            animation: prismShine 3s ease-in-out infinite;
+        }
+
+        @keyframes prismShine {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        .prism-text {
+            font-size: 12px;
+            color: rgba(42, 42, 42, 0.7);
+            font-weight: 500;
+        }
+
+        .intensity-slider {
+            width: 60px;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .intensity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .artist-header {
+                top: 16px;
+                left: 16px;
+                right: 16px;
+                padding: 0 20px;
+            }
+
+            .canvas-search {
+                margin: 0 20px;
+                max-width: 200px;
+            }
+
+            .palette-panel,
+            .inspiration-panel {
+                position: fixed;
+                bottom: 100px;
+                left: 16px;
+                right: 16px;
+                width: auto;
+                border-radius: 20px 20px 0 0;
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+            }
+
+            .palette-panel.open,
+            .inspiration-panel.open {
+                transform: translateY(0);
+            }
+
+            .prism-filter {
+                top: 90px;
+                left: 16px;
+                right: 16px;
+                width: auto;
+            }
+
+            .brush-panel {
+                bottom: 16px;
+                left: 16px;
+                right: 16px;
+                transform: none;
+                border-radius: 16px;
+            }
+
+            .add-touch {
+                bottom: 90px;
+                right: 16px;
+                width: 48px;
+                height: 48px;
+                font-size: 18px;
+            }
+        }
+
+        /* Fade Animations */
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Canvas Background -->
+    <div class="canvas-background"></div>
+
+    <!-- Artist Header -->
+    <header class="artist-header fade-in">
+        <div class="signature">
+            <div class="signature-mark"></div>
+            <div class="signature-text">Sensmap</div>
+        </div>
+        
+        <div class="canvas-search">
+            <input type="text" class="search-canvas" placeholder="당신만의 감각 여행을 시작하세요...">
+            <i class="fas fa-search search-icon"></i>
+        </div>
+        
+        <div class="canvas-tools">
+            <button class="tool-btn active" title="감각 보기">
+                <i class="fas fa-eye"></i>
+            </button>
+            <button class="tool-btn" title="레이어">
+                <i class="fas fa-layer-group"></i>
+            </button>
+            <button class="tool-btn" title="프리즘">
+                <i class="fas fa-adjust"></i>
+            </button>
+            <button class="tool-btn" title="설정">
+                <i class="fas fa-palette"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Palette Panel -->
+    <aside class="palette-panel slide-in" style="animation-delay: 0.2s">
+        <div class="palette-header">
+            <h2 class="palette-title">감각의 팔레트</h2>
+            <p class="palette-subtitle">각자의 프리즘으로 세상을 물들여보세요</p>
+        </div>
+        
+        <div class="color-palette">
+            <div class="color-drop noise active">
+                <span class="color-icon">🎵</span>
+                <div class="color-label">소리</div>
+                <div class="color-value">7.2</div>
+            </div>
+            
+            <div class="color-drop light">
+                <span class="color-icon">☀️</span>
+                <div class="color-label">빛</div>
+                <div class="color-value">5.8</div>
+            </div>
+            
+            <div class="color-drop odor">
+                <span class="color-icon">🌸</span>
+                <div class="color-label">향기</div>
+                <div class="color-value">3.4</div>
+            </div>
+            
+            <div class="color-drop crowd">
+                <span class="color-icon">🌊</span>
+                <div class="color-label">흐름</div>
+                <div class="color-value">8.1</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Prism Filter -->
+    <div class="prism-filter slide-in" style="animation-delay: 0.4s">
+        <div class="prism-icon"></div>
+        <span class="prism-text">프리즘 강도</span>
+        <input type="range" class="intensity-slider" min="0.1" max="1" step="0.1" value="0.7">
+    </div>
+
+    <!-- Canvas Area -->
+    <main class="canvas-area">
+        <div class="canvas-watermark">
+            "모든 사람은 서로 다른 프리즘을 통해<br>
+            세상의 감각을 경험합니다.<br>
+            당신의 감각으로 이 도화지를 물들여주세요."
+        </div>
+    </main>
+
+    <!-- Inspiration Panel -->
+    <aside class="inspiration-panel slide-in" style="animation-delay: 0.3s">
+        <div class="inspiration-header">
+            <h2 class="inspiration-title">영감의 기록</h2>
+            <p class="inspiration-subtitle">함께 그려가는 감각의 지도</p>
+        </div>
+        
+        <div class="inspiration-content">
+            <div class="inspiration-quote">
+                "예술은 우리가 진실을 깨닫게 해주는 거짓말이다."<br>
+                — Pablo Picasso
+            </div>
+            
+            <div class="stats-sketch">
+                <div class="stat-note">
+                    <div class="stat-number">142</div>
+                    <div class="stat-label">활성 붓</div>
+                </div>
+                <div class="stat-note">
+                    <div class="stat-number">89</div>
+                    <div class="stat-label">오늘의 터치</div>
+                </div>
+                <div class="stat-note">
+                    <div class="stat-number">6.8</div>
+                    <div class="stat-label">조화 지수</div>
+                </div>
+                <div class="stat-note">
+                    <div class="stat-number">1.2K</div>
+                    <div class="stat-label">예술가들</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Brush Panel -->
+    <div class="brush-panel fade-in" style="animation-delay: 0.5s">
+        <div class="brush-option active">
+            <div class="brush-icon brush-sensory">
+                <i class="fas fa-leaf"></i>
+            </div>
+            <span class="brush-text">감각의 붓</span>
+        </div>
+        
+        <div class="brush-option">
+            <div class="brush-icon brush-balanced">
+                <i class="fas fa-balance-scale"></i>
+            </div>
+            <span class="brush-text">조화의 붓</span>
+        </div>
+        
+        <div class="brush-option">
+            <div class="brush-icon brush-time">
+                <i class="fas fa-clock"></i>
+            </div>
+            <span class="brush-text">시간의 붓</span>
+        </div>
+    </div>
+
+    <!-- Add Touch Button -->
+    <button class="add-touch fade-in" style="animation-delay: 0.6s" title="새로운 감각 터치 추가">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Interactive Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Color palette interactions
+            const colorDrops = document.querySelectorAll('.color-drop');
+            colorDrops.forEach(drop => {
+                drop.addEventListener('click', function() {
+                    colorDrops.forEach(d => d.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Brush options
+            const brushOptions = document.querySelectorAll('.brush-option');
+            brushOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    brushOptions.forEach(o => o.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Tool buttons
+            const toolBtns = document.querySelectorAll('.tool-btn');
+            toolBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    toolBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Add paint drop effect on add button click
+            const addButton = document.querySelector('.add-touch');
+            addButton.addEventListener('click', function() {
+                // Create paint drop effect
+                const drop = document.createElement('div');
+                drop.style.cssText = `
+                    position: fixed;
+                    width: 6px;
+                    height: 6px;
+                    background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 10000;
+                    left: ${Math.random() * window.innerWidth}px;
+                    top: ${Math.random() * window.innerHeight}px;
+                    animation: paintDrop 2s ease-out forwards;
+                `;
+                
+                document.body.appendChild(drop);
+                setTimeout(() => drop.remove(), 2000);
+            });
+
+            // Prism slider effect
+            const prismSlider = document.querySelector('.intensity-slider');
+            prismSlider.addEventListener('input', function() {
+                const value = this.value;
+                const canvas = document.querySelector('.canvas-background');
+                canvas.style.opacity = value;
+                
+                // Update prism shine animation speed
+                const prismIcon = document.querySelector('.prism-icon::before');
+                document.documentElement.style.setProperty('--prism-speed', `${3 - (value * 1.5)}s`);
+            });
+
+            // Canvas ripple effect on click
+            document.querySelector('.canvas-area').addEventListener('click', function(e) {
+                const ripple = document.createElement('div');
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: 20px;
+                    height: 20px;
+                    left: ${x - 10}px;
+                    top: ${y - 10}px;
+                    background: radial-gradient(circle, rgba(255, 107, 107, 0.3) 0%, transparent 70%);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    animation: canvasRipple 1.5s ease-out forwards;
+                `;
+                
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 1500);
+            });
+
+            // Add CSS animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes paintDrop {
+                    0% {
+                        transform: scale(0) rotate(0deg);
+                        opacity: 1;
+                    }
+                    50% {
+                        transform: scale(3) rotate(180deg);
+                        opacity: 0.7;
+                    }
+                    100% {
+                        transform: scale(0) rotate(360deg);
+                        opacity: 0;
+                    }
+                }
+                
+                @keyframes canvasRipple {
+                    0% {
+                        transform: scale(0);
+                        opacity: 0.8;
+                    }
+                    100% {
+                        transform: scale(10);
+                        opacity: 0;
+                    }
+                }
+                
+                .prism-icon::before {
+                    animation-duration: var(--prism-speed, 3s);
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Mobile responsiveness
+            function handleResize() {
+                if (window.innerWidth <= 768) {
+                    // Add mobile-specific interactions
+                    const panels = document.querySelectorAll('.palette-panel, .inspiration-panel');
+                    panels.forEach(panel => {
+                        panel.addEventListener('touchstart', function() {
+                            this.classList.toggle('open');
+                        });
+                    });
+                }
+            }
+
+            handleResize();
+            window.addEventListener('resize', handleResize);
+
+            // Poetic interaction feedback
+            const poeticFeedbacks = [
+                "감각의 물감이 도화지에 스며듭니다...",
+                "새로운 색깔이 세상에 더해졌습니다.",
+                "당신의 프리즘이 빛을 굴절시킵니다.",
+                "또 다른 관점이 지도에 그려집니다.",
+                "감각의 조화가 완성되어 갑니다."
+            ];
+
+            // Show poetic feedback occasionally
+            setInterval(() => {
+                if (Math.random() < 0.1) { // 10% chance every interval
+                    const feedback = poeticFeedbacks[Math.floor(Math.random() * poeticFeedbacks.length)];
+                    const toast = document.createElement('div');
+                    toast.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: rgba(255, 255, 255, 0.95);
+                        backdrop-filter: blur(20px);
+                        border: 1px solid rgba(0, 0, 0, 0.05);
+                        border-radius: 16px;
+                        padding: 16px 24px;
+                        font-family: 'Crimson Text', serif;
+                        font-style: italic;
+                        color: rgba(42, 42, 42, 0.8);
+                        font-size: 14px;
+                        z-index: 10001;
+                        animation: poeticToast 3s ease-in-out forwards;
+                        pointer-events: none;
+                    `;
+                    toast.textContent = feedback;
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 3000);
+                }
+            }, 10000); // Check every 10 seconds
+
+            // Add poetic toast animation
+            const poeticStyle = document.createElement('style');
+            poeticStyle.textContent = `
+                @keyframes poeticToast {
+                    0% {
+                        opacity: 0;
+                        transform: translate(-50%, -50%) scale(0.8);
+                    }
+                    20% {
+                        opacity: 1;
+                        transform: translate(-50%, -50%) scale(1);
+                    }
+                    80% {
+                        opacity: 1;
+                        transform: translate(-50%, -50%) scale(1);
+                    }
+                    100% {
+                        opacity: 0;
+                        transform: translate(-50%, -50%) scale(0.8);
+                    }
+                }
+            `;
+            document.head.appendChild(poeticStyle);
+        });
+    </script>
+</body>
+</html>

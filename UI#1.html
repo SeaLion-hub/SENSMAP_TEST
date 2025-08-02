@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensmap - Floating Glass UI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Glassmorphism Background */
+        .glass-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        /* Floating Header */
+        .floating-header {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 12px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        .logo {
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 50px 12px 20px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* Floating Control Panels */
+        .control-panel {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 20px;
+            z-index: 999;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .sensory-panel {
+            top: 120px;
+            left: 30px;
+            width: 280px;
+        }
+
+        .route-panel {
+            bottom: 30px;
+            left: 30px;
+            width: 300px;
+        }
+
+        .stats-panel {
+            top: 120px;
+            right: 30px;
+            width: 260px;
+        }
+
+        .panel-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Sensory Controls */
+        .sensory-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .sensory-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sensory-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .sensory-card:hover::before {
+            left: 100%;
+        }
+
+        .sensory-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .sensory-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .sensory-label {
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .sensory-value {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        /* Route Controls */
+        .route-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .route-option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .route-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .route-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .route-sensory { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .route-balanced { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .route-time { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+
+        .route-text {
+            flex: 1;
+        }
+
+        .route-title {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .route-desc {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Stats Panel */
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #4facfe;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+            50% { box-shadow: 0 8px 25px rgba(102, 126, 234, 0.8); }
+            100% { box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        /* Map Area */
+        .map-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 24px;
+            z-index: 1;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .floating-header {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+            }
+
+            .search-container {
+                max-width: 200px;
+            }
+
+            .control-panel {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                border-radius: 20px 20px 0 0;
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sensory-panel {
+                top: auto;
+                left: 0;
+                width: 100%;
+            }
+
+            .route-panel {
+                bottom: 0;
+                left: 0;
+                width: 100%;
+            }
+
+            .stats-panel {
+                top: auto;
+                right: 0;
+                width: 100%;
+            }
+
+            .fab {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="glass-bg"></div>
+    
+    <!-- Floating Header -->
+    <div class="floating-header">
+        <div class="logo">
+            <i class="fas fa-map-marked-alt"></i>
+            Sensmap
+        </div>
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="목적지를 검색하세요...">
+            <button class="search-btn">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <button class="search-btn" style="position: static; background: rgba(255,255,255,0.2);">
+            <i class="fas fa-user"></i>
+        </button>
+    </div>
+
+    <!-- Sensory Control Panel -->
+    <div class="control-panel sensory-panel">
+        <div class="panel-title">
+            <i class="fas fa-eye"></i>
+            감각 필터
+        </div>
+        <div class="sensory-grid">
+            <div class="sensory-card">
+                <span class="sensory-icon">🔊</span>
+                <div class="sensory-label">소음</div>
+                <div class="sensory-value">7.2</div>
+            </div>
+            <div class="sensory-card">
+                <span class="sensory-icon">💡</span>
+                <div class="sensory-label">빛</div>
+                <div class="sensory-value">5.8</div>
+            </div>
+            <div class="sensory-card">
+                <span class="sensory-icon">👃</span>
+                <div class="sensory-label">냄새</div>
+                <div class="sensory-value">3.4</div>
+            </div>
+            <div class="sensory-card">
+                <span class="sensory-icon">👥</span>
+                <div class="sensory-label">혼잡도</div>
+                <div class="sensory-value">8.1</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Route Panel -->
+    <div class="control-panel route-panel">
+        <div class="panel-title">
+            <i class="fas fa-route"></i>
+            경로 옵션
+        </div>
+        <div class="route-options">
+            <div class="route-option">
+                <div class="route-icon route-sensory">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div class="route-text">
+                    <div class="route-title">감각 우선</div>
+                    <div class="route-desc">가장 쾌적한 경로</div>
+                </div>
+            </div>
+            <div class="route-option">
+                <div class="route-icon route-balanced">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <div class="route-text">
+                    <div class="route-title">균형 경로</div>
+                    <div class="route-desc">시간과 쾌적함의 균형</div>
+                </div>
+            </div>
+            <div class="route-option">
+                <div class="route-icon route-time">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="route-text">
+                    <div class="route-title">시간 우선</div>
+                    <div class="route-desc">가장 빠른 경로</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="control-panel stats-panel">
+        <div class="panel-title">
+            <i class="fas fa-chart-bar"></i>
+            실시간 통계
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">활성 센서</span>
+            <span class="stat-value">142</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">오늘 리포트</span>
+            <span class="stat-value">89</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">평균 쾌적도</span>
+            <span class="stat-value">6.8</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">사용자</span>
+            <span class="stat-value">1.2K</span>
+        </div>
+    </div>
+
+    <!-- Map Container -->
+    <div class="map-container">
+        <i class="fas fa-map"></i>
+        <span style="margin-left: 10px;">지도 영역</span>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab">
+        <i class="fas fa-plus"></i>
+    </button>
+</body>
+</html>
